@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Treino Trinca Pro">
+<meta name="theme-color" content="#14161A">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAEIklEQVR4nO3d3W1UQRBE4TIiBMMDIhzCJhzeSIIHSxZgt/f+zEx315yTgFfoU9327go/PX/9JqL3+pT9Aqhu4KAwcFAYOCgMHBQGDgoDB4WBg8LAQWHgoDBwUBg4KAwcFAYOCgMHhYGDwsBBYeCgMHBQ2OfsF7Cu3z++r/lBX37+WvODZrfLciyT4dQuOOhCW+BYORs2zxRtgoOu5Y+Da+Ny5jiQcSdzHItzOjjkjYPZuJkzDrqZLQ5m436eOFJkmB0ccsVBQzLEwQNlVIY4aFRuOJiNgVnhSJThd43KDAeNzQcHD5Th+eCg4ZngyJ0Ny4NDHjh4oEzKAQdNqj0OZmNe7XGk53pwqDsOZmNqjXEgY3aNcdDsuuJgNhbUFUeRjK9RNcXBbKypHw5kLKsfDlpWMxylZsP74FA7HLSyTjhKzcYOtcGBjPW1wVEt+4NDXXAwGyn1wEEpNcDBbGRVHQcyEquOo2Y7XKMqjoPZyK00DsqtLg5mI72iOCrL2OTgUFkcVKGKOCrPxlZVxEFFKoej+Gzsc3CoGo7iMnZro7/xNqSafCftWaHlqPnvXr95T7pCOOhCU2+gKjiYjQvNvo5L4EDGhRb83lQCB51tzW/U+TiYjbMte68lHwedauW7cMk4mI1TLX5/NhMHMk61/p17His9SvlMJw0Hs3G8rE/7WI7qJX4OnIOD2ThY7jcEEnAg42Dp3x3hsVK0dBlaj4PZOFIFGWI5ClZEhhbjYDYeVkeGVuJAxsNKyRCPlTpVk6FlOJiNjysoQ3z7PL2aLF5asRzMRlRlGVqAAxlRxWWIgzSr+jI0Gwez8W4tZIjlWF8XGZqKg9l4WyMZkp6ev37Lfg1TKkizlwzxWFlWOxlyxVFtNjrKkCuOUjWVIXDMrq8MgWNqrWUIHPPqLkOWOCpcowYyZIkjPQ8ZAsfwbGQIHGNzkiFwDMxMhvxwZF2jfjLkhyMlSxkCx/1cZQgcNzOWIXDcyVuGzHCsvEbtZcgMx7J2kCFwXGgTGQLH2faRIXCcaisZcsIx+xrdTYaccExtQxkCx5H2lCFwPGxbGQLHx+0sQzY4Zlyjm8uQDY7hIUPgeDdkvASO/0PGa+D4J2T8nQOOUdcoMv7LAceQkPE2cEjICAIHMsJ2x4GMD2r/f59fvkZh8bBNlwMZR9oRBzIOth0OZBxvLxzIOFVvHKeuUWScrTeO4yHjQlvgQMa1/HEg43LmOJBxp8Y4Hl6jyLhZYxwfh4z7eeJAxpAMcSBjVG44kDGwrjjevUaRMbauON6GjOGZ4EDGjBxwIGNS7XEgY14tcbxeo8iYWkscLyFjdl1xIGNBtn/Lnu7XdTloQeCgMHBQGDgoDBwUBg4KAweFgYPCwEFh4KAwcFAYOCgMHBQGDgoDB4WBg8LAQWHgoLA/Xw0B3EIy+2kAAAAASUVORK5CYII=">
+<title>Treino Trinca Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14161A;
+  --surface:#1C2026;
+  --surface-2:#232830;
+  --line:#2D323B;
+  --ember:#FF5A36;
+  --ember-dim:#3D2A20;
+  --steel:#4FA8FF;
+  --steel-dim:#1E2E3E;
+  --text:#F4F0E6;
+  --text-dim:#9CA3AC;
+  --text-faint:#5F6570;
+  --good:#5FD48A;
+  --good-dim:#1E3327;
+  --radius:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Work Sans',sans-serif;
+  padding-bottom:calc(78px + env(safe-area-inset-bottom));
+  min-height:100vh;
+}
+.display{font-family:'Big Shoulders Display',sans-serif;font-weight:800;letter-spacing:0.01em;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.tab{display:none;padding:16px 16px 8px;max-width:520px;margin:0 auto;}
+.tab.active{display:block;}
+.topbar{
+  position:sticky;top:0;z-index:10;
+  background:linear-gradient(var(--bg) 85%, transparent);
+  padding:calc(18px + env(safe-area-inset-top)) 16px 10px;max-width:520px;margin:0 auto;
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.topbar .day-label{font-size:13px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin:0 0 2px;}
+.topbar .day-title{font-size:30px;line-height:1;margin:0;}
+.streak-chip{
+  background:var(--surface);border:1px solid var(--line);border-radius:20px;
+  padding:6px 12px;font-size:12px;color:var(--text-dim);white-space:nowrap;margin-top:4px;
+}
+.streak-chip b{color:var(--ember);font-family:'IBM Plex Mono',monospace;}
+
+.ring-wrap{display:flex;justify-content:center;margin:6px 0 20px;}
+.ring-center{font-family:'IBM Plex Mono',monospace;}
+.ring-num{font-size:26px;font-weight:600;fill:var(--text);}
+.ring-lbl{font-size:9px;fill:var(--text-dim);}
+
+.badge{
+  display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;
+  margin-bottom:14px;font-weight:500;
+}
+.badge.cardio{background:var(--steel-dim);color:var(--steel);}
+.badge.rest{background:var(--surface-2);color:var(--text-dim);}
+.badge.warn{background:var(--ember-dim);color:var(--ember);}
+
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;margin-bottom:12px;
+}
+.card.done{border-color:var(--good-dim);}
+.ex-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.ex-name{font-size:16px;font-weight:600;margin:0 0 4px;}
+.ex-meta{font-size:13px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;}
+.ex-note{font-size:12.5px;color:var(--ember);margin-top:6px;line-height:1.4;}
+.tech-tag{
+  display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;
+  background:var(--steel-dim);color:var(--steel);padding:2px 7px;border-radius:6px;margin-right:6px;vertical-align:middle;
+}
+.link-btn{
+  display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-dim);
+  text-decoration:none;border:1px solid var(--line);border-radius:20px;padding:6px 10px;
+  white-space:nowrap;flex-shrink:0;
+}
+.link-btn:active{background:var(--surface-2);}
+
+.set-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.set-dot{
+  width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);
+  background:var(--surface-2);color:var(--text-dim);font-family:'IBM Plex Mono',monospace;
+  font-size:13px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;user-select:none;flex-shrink:0;
+}
+.set-dot.on{background:var(--good-dim);border-color:var(--good);color:var(--good);}
+.rest-btn{
+  margin-left:auto;background:var(--ember-dim);color:var(--ember);border:none;
+  border-radius:20px;padding:8px 14px;font-size:12.5px;font-weight:500;font-family:'Work Sans',sans-serif;
+  display:flex;align-items:center;gap:5px;cursor:pointer;
+}
+.rest-btn:active{opacity:0.8;}
+
+.cardio-card{background:var(--steel-dim);border:1px solid #2C4560;}
+.cardio-card .ex-name{color:var(--steel);}
+.cardio-toggle{
+  margin-top:12px;width:100%;padding:12px;border-radius:10px;border:1px solid #345272;
+  background:rgba(79,168,255,0.08);color:var(--steel);font-family:'Work Sans',sans-serif;
+  font-size:14px;font-weight:500;cursor:pointer;
+}
+.cardio-toggle.done{background:var(--good-dim);border-color:var(--good);color:var(--good);}
+
+.empty-note{color:var(--text-dim);font-size:14px;text-align:center;padding:40px 20px;line-height:1.6;}
+
+.week-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  margin-bottom:10px;overflow:hidden;
+}
+.week-card.today{border-color:var(--ember);}
+.week-card-header{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;}
+.week-day{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:22px;width:44px;flex-shrink:0;color:var(--text-dim);}
+.week-card.today .week-day{color:var(--ember);}
+.week-info{flex:1;min-width:0;}
+.week-info .w-title{font-size:14px;font-weight:600;margin:0 0 2px;}
+.week-info .w-focus{font-size:12.5px;color:var(--text-dim);margin:0;}
+.chev{color:var(--text-faint);font-size:10px;flex-shrink:0;}
+.week-detail{display:none;padding:0 16px 16px;}
+.week-card.open .week-detail{display:block;}
+.lock-note{
+  font-size:12.5px;color:var(--text-dim);background:var(--surface-2);
+  border-radius:10px;padding:10px 12px;margin-bottom:12px;line-height:1.5;
+}
+.set-dot.locked{opacity:0.35;pointer-events:none;}
+.rest-btn.locked{opacity:0.35;pointer-events:none;}
+.cardio-toggle.locked{opacity:0.5;pointer-events:none;}
+
+.section-lbl{font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin:22px 0 10px;}
+
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.metric{background:var(--surface);border-radius:var(--radius);padding:14px;border:1px solid var(--line);}
+.metric .m-lbl{font-size:11.5px;color:var(--text-dim);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.04em;}
+.metric .m-val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;margin:0;}
+.metric .m-val.ember{color:var(--ember);}
+.metric .m-val.good{color:var(--good);}
+
+.pace-note{
+  background:var(--surface);border-left:3px solid var(--ember);border-radius:0 var(--radius) var(--radius) 0;
+  padding:14px 16px;margin-bottom:18px;font-size:13px;line-height:1.6;color:var(--text-dim);
+}
+.pace-note b{color:var(--text);}
+
+.log-form{display:flex;gap:8px;margin-bottom:18px;}
+.log-form input{
+  flex:1;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:12px;font-size:16px;font-family:'IBM Plex Mono',monospace;
+  min-width:0;
+}
+.log-form button{
+  background:var(--ember);color:#1A0D08;border:none;border-radius:10px;padding:0 18px;
+  font-weight:600;font-size:14px;font-family:'Work Sans',sans-serif;cursor:pointer;
+}
+.chart-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
+.chart-wrap svg{width:100%;height:auto;display:block;}
+
+.water-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px;}
+.water-amount{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;margin:0;}
+.water-target{font-size:12.5px;color:var(--text-dim);margin:2px 0 0;}
+.water-btns{display:flex;gap:8px;}
+.water-btn{flex:1;background:var(--steel-dim);color:var(--steel);border:none;border-radius:10px;padding:12px 0;font-size:13px;font-weight:500;font-family:'Work Sans',sans-serif;cursor:pointer;}
+.water-btn.minus{background:var(--surface-2);color:var(--text-dim);}
+.water-bar-track{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-bottom:14px;}
+.water-bar-fill{height:100%;background:var(--steel);border-radius:4px;}
+
+.supp-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);}
+.supp-row:last-child{border-bottom:none;}
+.supp-name{font-size:14px;font-weight:500;margin:0;}
+.supp-desc{font-size:12px;color:var(--text-dim);margin:2px 0 0;}
+.supp-check{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface-2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--text-dim);font-size:14px;}
+.supp-check.on{background:var(--good-dim);border-color:var(--good);color:var(--good);}
+.log-list{display:flex;flex-direction:column;gap:1px;}
+.log-row{display:flex;justify-content:space-between;padding:10px 2px;border-bottom:1px solid var(--line);font-size:13px;}
+.log-row .lr-date{color:var(--text-dim);}
+.log-row .lr-val{font-family:'IBM Plex Mono',monospace;}
+
+.bottomnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  background:rgba(28,32,38,0.95);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  display:flex;padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+}
+.bottomnav button{
+  flex:1;background:none;border:none;color:var(--text-faint);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:6px 0;font-size:11px;font-family:'Work Sans',sans-serif;cursor:pointer;
+}
+.bottomnav button svg{width:22px;height:22px;}
+.bottomnav button.active{color:var(--ember);}
+
+.timer-banner{
+  position:fixed;left:12px;right:12px;bottom:calc(72px + env(safe-area-inset-bottom));
+  z-index:30;background:var(--ember);color:#1A0D08;border-radius:16px;
+  padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:496px;margin:0 auto;
+}
+.timer-banner.hidden{display:none;}
+.timer-banner .tb-label{font-size:12px;opacity:0.75;margin:0 0 2px;}
+.timer-banner .tb-time{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;margin:0;}
+.timer-banner .tb-actions{display:flex;gap:8px;}
+.timer-banner button{
+  background:rgba(0,0,0,0.15);border:none;color:#1A0D08;border-radius:10px;
+  width:38px;height:38px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+</style>
+</head>
+<body>
+
+<div class="timer-banner hidden" id="timerBanner">
+  <div>
+    <p class="tb-label" id="tbLabel">Descanso</p>
+    <p class="tb-time" id="tbTime">01:15</p>
+  </div>
+  <div class="tb-actions">
+    <button id="tbPause" aria-label="Pausar">⏸</button>
+    <button id="tbSkip" aria-label="Pular">⏭</button>
+  </div>
+</div>
+
+<div class="topbar">
+  <div>
+    <p class="day-label" id="topDate">—</p>
+    <p class="day-title display" id="topTitle">—</p>
+  </div>
+  <div class="streak-chip" id="streakChip">carregando…</div>
+</div>
+
+<section class="tab active" id="tab-hoje">
+  <div class="ring-wrap">
+    <svg width="140" height="140" viewBox="0 0 140 140">
+      <circle cx="70" cy="70" r="60" fill="none" stroke="#232830" stroke-width="10"/>
+      <circle id="ringProgress" cx="70" cy="70" r="60" fill="none" stroke="#FF5A36" stroke-width="10"
+        stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="377" transform="rotate(-90 70 70)"/>
+      <text x="70" y="66" text-anchor="middle" class="ring-num" id="ringNum">0%</text>
+      <text x="70" y="84" text-anchor="middle" class="ring-lbl">CONCLUÍDO HOJE</text>
+    </svg>
+  </div>
+  <div id="badgeArea"></div>
+  <div id="exList"></div>
+</section>
+
+<section class="tab" id="tab-semana">
+  <div class="section-lbl">Sua semana</div>
+  <div id="weekList"></div>
+</section>
+
+<section class="tab" id="tab-progresso">
+  <div class="section-lbl">Seu programa</div>
+  <div class="card" id="phaseCard" style="margin-bottom:20px;"></div>
+
+  <div class="section-lbl">Sua meta</div>
+  <div class="metric-grid">
+    <div class="metric"><p class="m-lbl">Peso atual</p><p class="m-val" id="curWeight">91.0 kg</p></div>
+    <div class="metric"><p class="m-lbl">Falta pra meta</p><p class="m-val ember" id="toGoal">-10.0 kg</p></div>
+  </div>
+  <div class="pace-note" id="paceNote">Registre seu peso pra eu calcular seu ritmo real.</div>
+
+  <div class="section-lbl">Registrar hoje</div>
+  <div class="log-form">
+    <input type="number" step="0.1" inputmode="decimal" id="inputWeight" placeholder="Peso (kg)">
+    <input type="number" step="0.5" inputmode="decimal" id="inputWaist" placeholder="Cintura (cm)">
+    <button id="btnLog">Salvar</button>
+  </div>
+
+  <div class="section-lbl">Evolução do peso</div>
+  <div class="chart-wrap"><svg id="chartSvg" viewBox="0 0 480 160"></svg></div>
+
+  <div class="section-lbl">Histórico</div>
+  <div class="log-list" id="logList"><p class="empty-note">Nenhum registro ainda</p></div>
+</section>
+
+<section class="tab" id="tab-nutricao">
+  <div class="section-lbl">Suas metas diárias</div>
+  <div class="metric-grid">
+    <div class="metric"><p class="m-lbl">Calorias</p><p class="m-val">2.500 kcal</p></div>
+    <div class="metric"><p class="m-lbl">Proteína</p><p class="m-val ember">190 g</p></div>
+    <div class="metric"><p class="m-lbl">Carboidratos</p><p class="m-val">260 g</p></div>
+    <div class="metric"><p class="m-lbl">Gordura</p><p class="m-val">70 g</p></div>
+  </div>
+
+  <div class="section-lbl">Água de hoje</div>
+  <div class="card" id="waterCard"></div>
+
+  <div class="section-lbl">Suplementos de hoje</div>
+  <div class="card" id="suppCard"></div>
+
+  <div class="section-lbl">Modelo de refeições</div>
+  <div class="card">
+    <p class="ex-name">Café da manhã</p>
+    <p class="ex-meta" style="margin-bottom:12px;">Ovos mexidos (3-4) ou omelete + fruta (banana/mamão) + café</p>
+    <p class="ex-name">Almoço</p>
+    <p class="ex-meta" style="margin-bottom:12px;">Frango, carne magra ou peixe (150-200g) + arroz + feijão + batata-doce ou legume cozido</p>
+    <p class="ex-name">Lanche da tarde</p>
+    <p class="ex-meta" style="margin-bottom:12px;">Whey com água/leite + fruta, ou sanduíche natural de frango</p>
+    <p class="ex-name">Pós-treino</p>
+    <p class="ex-meta" style="margin-bottom:12px;">Whey + carboidrato rápido (banana)</p>
+    <p class="ex-name">Jantar</p>
+    <p class="ex-meta">Peixe, frango ou carne + carboidrato moderado + legume cozido (opcional)</p>
+  </div>
+</section>
+
+<nav class="bottomnav">
+  <button data-tab="hoje" class="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+    Hoje
+  </button>
+  <button data-tab="semana">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+    Semana
+  </button>
+  <button data-tab="progresso">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+    Progresso
+  </button>
+  <button data-tab="nutricao">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 2v6a3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V2M10 11v11M17 2c-1.5 1.5-2 3-2 6s.5 4.5 2 6c1.5-1.5 2-3 2-6s-.5-4.5-2-6zM17 15v8"/></svg>
+    Nutrição
+  </button>
+</nav>
+
+<script>
+const WEEK_FASE1 = [
+  { day:'Segunda', label:'Treino A', focus:'Pernas (quadríceps) + abdômen', type:'forca', tag:'PERNA · QUAD',
+    finisher:{desc:'8-10 min de caminhada leve na esteira. Pernas já exigidas hoje, mantenha intensidade baixa — é só um empurrão extra no gasto calórico.'},
+    exercises:[
+      {name:'Leg press 45°', sets:4, reps:'12', rest:75},
+      {name:'Agachamento no smith', sets:4, reps:'10', rest:90},
+      {name:'Cadeira extensora', sets:3, reps:'15', rest:60},
+      {name:'Cadeira flexora', sets:3, reps:'15', rest:60},
+      {name:'Panturrilha em pé', sets:4, reps:'15', rest:45},
+      {name:'Prancha abdominal', sets:3, reps:'30-40s', rest:45},
+      {name:'Elevação de pernas', sets:3, reps:'15', rest:45},
+    ]},
+  { day:'Terça', label:'Treino B', focus:'Costas + bíceps', type:'forca', tag:'COSTAS · BÍCEPS',
+    finisher:{desc:'12-15 min de bike ou caminhada inclinada em ritmo moderado. Pernas ainda frescas hoje, dá pra intensificar um pouco mais aqui.'},
+    exercises:[
+      {name:'Puxada frente (pulley)', sets:4, reps:'12', rest:75},
+      {name:'Remada baixa no cabo', sets:3, reps:'12', rest:75},
+      {name:'Remada unilateral com halter', sets:3, reps:'12 cada lado', rest:60},
+      {name:'Rosca direta na barra', sets:3, reps:'12', rest:60},
+      {name:'Rosca alternada com halteres', sets:3, reps:'12', rest:60},
+      {name:'Rosca martelo', sets:3, reps:'12', rest:60},
+    ]},
+  { day:'Quarta', label:'Cardio', focus:'Caminhada inclinada + abdômen', type:'cardio',
+    cardio:{desc:'25-30 min na esteira inclinada (8-12%), ritmo em que você ainda consegue falar em frases curtas.'},
+    exercises:[
+      {name:'Abdominal infra (pernas ou joelhos)', sets:3, reps:'15', rest:45},
+      {name:'Prancha lateral', sets:2, reps:'30s cada lado', rest:45},
+      {name:'Abdominal bicicleta', sets:3, reps:'20', rest:45},
+    ]},
+  { day:'Quinta', label:'Treino C', focus:'Peito + ombro + tríceps', type:'forca', tag:'PEITO · OMBRO',
+    shoulderWarn:true,
+    finisher:{desc:'10-12 min de caminhada inclinada em ritmo moderado.'},
+    exercises:[
+      {name:'Supino reto com halteres', sets:4, reps:'12', rest:90},
+      {name:'Crucifixo na máquina (peck deck)', sets:3, reps:'12', rest:60},
+      {name:'Desenvolvimento com halteres sentado', sets:3, reps:'12', rest:75, note:'Carga leve/moderada. Se o ombro esquerdo incomodar, troque por elevação lateral leve.'},
+      {name:'Elevação lateral leve', sets:3, reps:'15', rest:45},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:60},
+      {name:'Tríceps francês com halter', sets:3, reps:'12', rest:60},
+    ]},
+  { day:'Sexta', label:'Treino D', focus:'Pernas (posterior/glúteo) + bíceps', type:'forca', tag:'POSTERIOR · GLÚTEO',
+    finisher:{desc:'8-10 min de caminhada leve. Pernas bem exigidas hoje, mantenha bem tranquilo aqui.'},
+    exercises:[
+      {name:'Stiff com halteres', sets:4, reps:'12', rest:90},
+      {name:'Elevação pélvica (hip thrust)', sets:4, reps:'12', rest:90},
+      {name:'Cadeira flexora', sets:3, reps:'15', rest:60},
+      {name:'Afundo (passada)', sets:3, reps:'12 cada perna', rest:60},
+      {name:'Rosca scott', sets:3, reps:'12', rest:60},
+      {name:'Rosca inversa', sets:3, reps:'12', rest:60},
+    ]},
+  { day:'Sábado', label:'Cardio leve', focus:'Caminhada rápida ou trote (opcional)', type:'cardio-leve',
+    cardio:{desc:'30-40 min de caminhada rápida ou trote leve, no seu ritmo. Dia mais leve pra ativar sem acumular fadiga.'},
+    exercises:[]},
+  { day:'Domingo', label:'Descanso', focus:'Recuperação total', type:'descanso', exercises:[]},
+];
+
+const WEEK_FASE2 = [
+  { day:'Segunda', label:'Treino A', focus:'Pernas (quadríceps) + abdômen', type:'forca', tag:'PERNA · QUAD',
+    finisher:{desc:'8-10 min de caminhada leve na esteira. Pernas já exigidas hoje, mantenha intensidade baixa — é só um empurrão extra no gasto calórico.'},
+    exercises:[
+      {name:'Agachamento livre (barra)', sets:4, reps:'8-10', rest:120, note:'Profundidade controlada, core travado. Suba o peso aos poucos nas primeiras 2 semanas de volta.'},
+      {name:'Afundo com halteres (passada)', sets:3, reps:'12 cada perna', rest:75},
+      {name:'Leg press 45°', sets:3, reps:'12', rest:20, technique:'BI-SET'},
+      {name:'Cadeira extensora', sets:3, reps:'15', rest:90, technique:'BI-SET', note:'Faça direto após o leg press (sem descanso entre os dois). Na 3ª série, ao falhar, reduza a carga e continue por mais 8-10 reps (drop set).'},
+      {name:'Panturrilha em pé', sets:4, reps:'15', rest:45},
+      {name:'Elevação de pernas na barra fixa', sets:3, reps:'12', rest:60, note:'Sem balanço, controle a descida. Se ainda não aguenta, troque por elevação de pernas no solo.'},
+      {name:'Prancha com toque no ombro', sets:3, reps:'30-40s', rest:45},
+    ]},
+  { day:'Terça', label:'Treino B', focus:'Costas + bíceps', type:'forca', tag:'COSTAS · BÍCEPS',
+    finisher:{desc:'12-15 min de bike ou caminhada inclinada em ritmo moderado. Pernas ainda frescas hoje, dá pra intensificar um pouco mais aqui.'},
+    exercises:[
+      {name:'Levantamento terra romeno (RDL)', sets:4, reps:'10', rest:120, note:'Controle a descida, sinta o alongamento no posterior de coxa, não arredonde a lombar.'},
+      {name:'Barra fixa (ou puxada frente)', sets:4, reps:'8-10', rest:90, note:'Se ainda não faz barra fixa limpa, use a puxada frente com carga que permita boa execução.'},
+      {name:'Remada curvada com barra', sets:3, reps:'10', rest:90},
+      {name:'Remada unilateral com halter', sets:3, reps:'12 cada lado', rest:60},
+      {name:'Rosca direta com barra', sets:3, reps:'10', rest:15, technique:'BI-SET'},
+      {name:'Rosca martelo', sets:3, reps:'12', rest:60, technique:'BI-SET', note:'Direto após a rosca direta, sem descanso entre os dois.'},
+      {name:'Rosca 21', sets:1, reps:'7+7+7', rest:0, technique:'FINALIZADOR', note:'7 reps na metade inferior + 7 na metade superior + 7 na amplitude completa, tudo numa série só. Carga leve.'},
+    ]},
+  { day:'Quarta', label:'Cardio', focus:'Intervalado + abdômen', type:'cardio',
+    cardio:{desc:'Intervalado: 5 min de aquecimento leve + 8x (1 min forte / 1 min caminhada de recuperação) + 5 min de desaquecimento. Cerca de 25 min no total, na esteira ou ao ar livre.'},
+    exercises:[
+      {name:'Abdominal na polia (cable crunch)', sets:3, reps:'15', rest:60},
+      {name:'Prancha lateral com elevação de quadril', sets:2, reps:'12 cada lado', rest:45},
+      {name:'Roda abdominal (ab wheel)', sets:3, reps:'10', rest:60, note:'Se ainda não tem a roda, substitua por prancha longa de 45-60s.'},
+    ]},
+  { day:'Quinta', label:'Treino C', focus:'Peito + ombro + tríceps', type:'forca', tag:'PEITO · OMBRO',
+    shoulderWarn:true,
+    finisher:{desc:'10-12 min de caminhada inclinada em ritmo moderado.'},
+    exercises:[
+      {name:'Supino reto com barra', sets:4, reps:'8-10', rest:120, note:'Ombro esquerdo primeiro: teste com barra vazia antes de carregar.'},
+      {name:'Supino inclinado com halteres', sets:3, reps:'10', rest:90},
+      {name:'Crucifixo com halteres', sets:3, reps:'12', rest:15, technique:'BI-SET'},
+      {name:'Flexão de braço até a falha', sets:3, reps:'até falhar', rest:75, technique:'BI-SET', note:'Direto após o crucifixo, sem descanso entre os dois.'},
+      {name:'Desenvolvimento com halteres sentado', sets:3, reps:'12', rest:75, note:'Carga leve/moderada. Se o ombro esquerdo incomodar, troque por elevação lateral leve.'},
+      {name:'Elevação lateral leve', sets:3, reps:'15', rest:45},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+    ]},
+  { day:'Sexta', label:'Treino D', focus:'Pernas (posterior/glúteo) + bíceps', type:'forca', tag:'POSTERIOR · GLÚTEO',
+    finisher:{desc:'8-10 min de caminhada leve. Pernas muito exigidas pelo treino, mantenha bem tranquilo aqui.'},
+    exercises:[
+      {name:'Levantamento terra convencional', sets:4, reps:'8', rest:150, note:'Priorize técnica sobre carga, especialmente nas primeiras semanas de volta.'},
+      {name:'Elevação pélvica com barra (hip thrust)', sets:4, reps:'10', rest:90},
+      {name:'Cadeira flexora', sets:3, reps:'12', rest:60},
+      {name:'Passada com halteres (walking lunge)', sets:3, reps:'12 cada perna', rest:75},
+      {name:'Rosca scott (barra W)', sets:3, reps:'10', rest:75},
+      {name:'Rosca alternada com halteres', sets:3, reps:'12', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Rosca concentrada', sets:2, reps:'12 cada braço', rest:60, technique:'FINALIZADOR'},
+    ]},
+  { day:'Sábado', label:'Cardio leve', focus:'Recuperação ativa (opcional)', type:'cardio-leve',
+    cardio:{desc:'30-40 min de caminhada rápida ou trote leve. Se estiver com energia sobrando, troque por 15-20 min de bike ou remo em ritmo moderado. Dia de recuperação ativa, sem forçar.'},
+    exercises:[]},
+  { day:'Domingo', label:'Descanso', focus:'Recuperação total', type:'descanso', exercises:[]},
+];
+
+const todayIdx = (new Date().getDay() + 6) % 7;
+const dateISO = d => d.toISOString().slice(0,10);
+const todayISO = dateISO(new Date());
+
+let phase = 1;
+function activeWeek(){ return phase===1 ? WEEK_FASE1 : WEEK_FASE2; }
+
+let checkinState = {exSets:{}, cardioDone:false, finisherDone:false};
+
+let openWeekIdx = -1;
+
+function ytLink(name){
+  return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name + ' execução correta forma');
+}
+
+function exerciseCardHTML(ex, checkedArr, interactive){
+  let dots = '';
+  for(let i=0;i<ex.sets;i++){
+    const on = checkedArr && checkedArr[i];
+    dots += `<div class="set-dot ${on?'on':''} ${interactive?'':'locked'}" ${interactive?`data-ex="${ex.name}" data-set="${i}"`:''}>${i+1}</div>`;
+  }
+  const allDone = checkedArr && checkedArr.length && checkedArr.every(Boolean);
+  return `
+    <div class="card ${allDone?'done':''}">
+      <div class="ex-head">
+        <div>
+          <p class="ex-name">${ex.technique ? `<span class="tech-tag">${ex.technique}</span>` : ''}${ex.name}</p>
+          <p class="ex-meta">${ex.sets}x ${ex.reps}${ex.rest>0 ? ' · descanso '+ex.rest+'s' : ''}</p>
+          ${ex.note ? `<p class="ex-note">${ex.note}</p>` : ''}
+        </div>
+        <a class="link-btn" href="${ytLink(ex.name)}" target="_blank" rel="noopener">▶ ver execução</a>
+      </div>
+      <div class="set-row">
+        ${dots}
+        ${ex.rest>0 ? `<button class="rest-btn ${interactive?'':'locked'}" data-rest="${ex.rest}" data-name="${ex.name}">⏱ ${ex.rest}s</button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function cardioCardHTML(day, done, interactive){
+  return `
+    <div class="card cardio-card ${done?'done':''}">
+      <p class="ex-name">${day.label}</p>
+      <p class="ex-meta">${day.cardio.desc}</p>
+      <button class="cardio-toggle ${done?'done':''} ${interactive?'':'locked'}" ${interactive?'data-cardio-toggle="1"':''}>
+        ${done ? '✓ Cardio concluído' : (interactive ? 'Marcar cardio como feito' : 'Disponível no dia certo')}
+      </button>
+    </div>
+  `;
+}
+
+function finisherCardHTML(day, done, interactive){
+  return `
+    <div class="card cardio-card ${done?'done':''}">
+      <p class="ex-name">Finalizador de cardio</p>
+      <p class="ex-meta">${day.finisher.desc}</p>
+      <button class="cardio-toggle ${done?'done':''} ${interactive?'':'locked'}" ${interactive?'data-finisher-toggle="1"':''}>
+        ${done ? '✓ Finalizador concluído' : (interactive ? 'Marcar finalizador como feito' : 'Disponível no dia certo')}
+      </button>
+    </div>
+  `;
+}
+
+function attachInteractiveHandlers(container, day){
+  container.querySelectorAll('.set-dot[data-ex]').forEach(dot=>{
+    dot.onclick = async ()=>{
+      const exName = dot.dataset.ex;
+      const setI = +dot.dataset.set;
+      const exDef = day.exercises.find(e=>e.name===exName);
+      if(!checkinState.exSets[exName]) checkinState.exSets[exName] = new Array(exDef.sets).fill(false);
+      checkinState.exSets[exName][setI] = !checkinState.exSets[exName][setI];
+      await storeSet('checkin:'+todayISO, checkinState);
+      renderHoje();
+      renderSemana();
+      updateRing();
+    };
+  });
+  container.querySelectorAll('.rest-btn:not(.locked)').forEach(btn=>{
+    btn.onclick = ()=> startTimer(+btn.dataset.rest, btn.dataset.name);
+  });
+  const cardioBtn = container.querySelector('[data-cardio-toggle]');
+  if(cardioBtn){
+    cardioBtn.onclick = async ()=>{
+      checkinState.cardioDone = !checkinState.cardioDone;
+      await storeSet('checkin:'+todayISO, checkinState);
+      renderHoje();
+      renderSemana();
+      updateRing();
+    };
+  }
+  const finisherBtn = container.querySelector('[data-finisher-toggle]');
+  if(finisherBtn){
+    finisherBtn.onclick = async ()=>{
+      checkinState.finisherDone = !checkinState.finisherDone;
+      await storeSet('checkin:'+todayISO, checkinState);
+      renderHoje();
+      renderSemana();
+      updateRing();
+    };
+  }
+}
+
+async function storeGet(key){
+  try{ const v = localStorage.getItem(key); return v!==null ? JSON.parse(v) : null; }
+  catch(e){ return null; }
+}
+async function storeSet(key,val){
+  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+}
+function storeListKeys(prefix){
+  try{
+    const out = [];
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && k.startsWith(prefix)) out.push(k);
+    }
+    return out;
+  }catch(e){ return []; }
+}
+
+function totalSetsFor(day){
+  let t = day.exercises.reduce((s,e)=>s+e.sets,0);
+  if(day.cardio) t += 3;
+  if(day.finisher) t += 2;
+  return t;
+}
+function checkedSetsCount(){
+  let c = 0;
+  Object.values(checkinState.exSets).forEach(arr=>{ c += arr.filter(Boolean).length; });
+  if(checkinState.cardioDone) c += 3;
+  if(checkinState.finisherDone) c += 2;
+  return c;
+}
+
+function renderHoje(){
+  const day = activeWeek()[todayIdx];
+  document.getElementById('topDate').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long', day:'numeric', month:'long'});
+  document.getElementById('topTitle').textContent = day.label;
+
+  const badgeArea = document.getElementById('badgeArea');
+  badgeArea.innerHTML = '<span class="badge rest">Fase '+phase+' · '+(phase===1?'Base':'Avançado')+'</span> ';
+  if(day.type==='descanso'){
+    badgeArea.innerHTML += '<span class="badge rest">Dia de descanso</span>';
+  } else if(day.cardio){
+    badgeArea.innerHTML += '<span class="badge cardio">Dia de cardio</span>';
+  } else {
+    badgeArea.innerHTML += '<span class="badge cardio" style="background:var(--ember-dim);color:var(--ember)">'+day.tag+'</span>';
+  }
+  if(day.shoulderWarn){
+    badgeArea.innerHTML += ' <span class="badge warn">Ombro esquerdo — vá com calma</span>';
+  }
+
+  const list = document.getElementById('exList');
+  list.innerHTML = '';
+
+  if(day.type==='descanso'){
+    list.innerHTML = '<p class="empty-note">Hoje é dia de deixar o corpo recuperar. Durma bem e mantenha a alimentação em dia — o resultado se constrói no descanso também.</p>';
+    updateRing();
+    return;
+  }
+
+  let html = '';
+  if(day.cardio) html += cardioCardHTML(day, checkinState.cardioDone, true);
+  day.exercises.forEach(ex=>{
+    if(!checkinState.exSets[ex.name]) checkinState.exSets[ex.name] = new Array(ex.sets).fill(false);
+    html += exerciseCardHTML(ex, checkinState.exSets[ex.name], true);
+  });
+  if(day.finisher) html += finisherCardHTML(day, checkinState.finisherDone, true);
+  list.innerHTML = html;
+  attachInteractiveHandlers(list, day);
+
+  updateRing();
+}
+
+function updateRing(){
+  const day = activeWeek()[todayIdx];
+  const total = totalSetsFor(day);
+  const checked = checkedSetsCount();
+  const pct = total>0 ? Math.round((checked/total)*100) : 0;
+  const circ = 377;
+  document.getElementById('ringProgress').style.strokeDashoffset = circ - (circ*pct/100);
+  document.getElementById('ringNum').textContent = pct + '%';
+}
+
+function renderSemana(){
+  const list = document.getElementById('weekList');
+  list.innerHTML = '';
+  activeWeek().forEach((day, i)=>{
+    const isToday = i === todayIdx;
+    const isOpen = openWeekIdx === i;
+    const card = document.createElement('div');
+    card.className = 'week-card' + (isToday?' today':'') + (isOpen?' open':'');
+
+    let detailHTML = '';
+    if(day.type==='descanso'){
+      detailHTML = '<p class="empty-note" style="padding:8px 0 16px;">Dia de descanso total. Nenhum exercício programado.</p>';
+    } else {
+      if(!isToday){
+        detailHTML += `<p class="lock-note">🔒 As séries deste treino liberam na ${day.day.toLowerCase()}. Você já pode conferir os exercícios e os vídeos de execução agora.</p>`;
+      }
+      if(day.cardio) detailHTML += cardioCardHTML(day, isToday?checkinState.cardioDone:false, isToday);
+      day.exercises.forEach(ex=>{
+        const arr = isToday ? (checkinState.exSets[ex.name] || new Array(ex.sets).fill(false)) : new Array(ex.sets).fill(false);
+        detailHTML += exerciseCardHTML(ex, arr, isToday);
+      });
+      if(day.finisher) detailHTML += finisherCardHTML(day, isToday?checkinState.finisherDone:false, isToday);
+    }
+
+    card.innerHTML = `
+      <div class="week-card-header">
+        <div class="week-day display">${day.day.slice(0,3).toUpperCase()}</div>
+        <div class="week-info">
+          <p class="w-title">${day.label}${isToday?' · hoje':''}</p>
+          <p class="w-focus">${day.focus}</p>
+        </div>
+        <div class="chev">${isOpen?'▲':'▼'}</div>
+      </div>
+      <div class="week-detail">${detailHTML}</div>
+    `;
+    list.appendChild(card);
+
+    card.querySelector('.week-card-header').onclick = ()=>{
+      openWeekIdx = isOpen ? -1 : i;
+      renderSemana();
+    };
+
+    if(isOpen && isToday && day.type!=='descanso'){
+      attachInteractiveHandlers(card.querySelector('.week-detail'), day);
+    }
+  });
+}
+
+let timerInterval = null;
+let timerSeconds = 0;
+let timerPaused = false;
+function startTimer(seconds, label){
+  clearInterval(timerInterval);
+  timerSeconds = seconds;
+  timerPaused = false;
+  document.getElementById('tbLabel').textContent = 'Descanso · ' + label;
+  document.getElementById('timerBanner').classList.remove('hidden');
+  tickTimer();
+  timerInterval = setInterval(tickTimer, 1000);
+}
+function tickTimer(){
+  if(timerPaused) return;
+  const m = String(Math.floor(timerSeconds/60)).padStart(2,'0');
+  const s = String(timerSeconds%60).padStart(2,'0');
+  document.getElementById('tbTime').textContent = m+':'+s;
+  if(timerSeconds<=0){
+    clearInterval(timerInterval);
+    document.getElementById('timerBanner').classList.add('hidden');
+    if(navigator.vibrate) navigator.vibrate([200,100,200]);
+    return;
+  }
+  timerSeconds--;
+}
+document.getElementById('tbPause').onclick = ()=>{
+  timerPaused = !timerPaused;
+  document.getElementById('tbPause').textContent = timerPaused ? '▶' : '⏸';
+};
+document.getElementById('tbSkip').onclick = ()=>{
+  clearInterval(timerInterval);
+  document.getElementById('timerBanner').classList.add('hidden');
+};
+
+const START_WEIGHT = 91.0;
+const GOAL_WEIGHT = 81.0;
+let weightLog = [];
+
+async function loadWeightLog(){
+  const data = await storeGet('weight-log');
+  weightLog = data || [];
+  renderProgresso();
+}
+function renderProgresso(){
+  const last = weightLog.length ? weightLog[weightLog.length-1] : null;
+  const cur = last ? last.weight : START_WEIGHT;
+  const toGoal = (cur - GOAL_WEIGHT);
+  document.getElementById('curWeight').textContent = cur.toFixed(1) + ' kg';
+  document.getElementById('toGoal').textContent = (toGoal>0?'-':'+') + Math.abs(toGoal).toFixed(1) + ' kg';
+
+  const lost = START_WEIGHT - cur;
+  const weeksHealthy = toGoal>0 ? Math.ceil(toGoal / 0.75) : 0;
+  const noteEl = document.getElementById('paceNote');
+  if(weightLog.length < 2){
+    noteEl.innerHTML = `<b>Meta: ${START_WEIGHT}kg → ${GOAL_WEIGHT}kg.</b> Num ritmo saudável (0,5-1kg/semana), isso leva cerca de ${Math.ceil((START_WEIGHT-GOAL_WEIGHT)/0.75)} semanas. Registre seu peso toda semana pra acompanhar de verdade.`;
+  } else {
+    noteEl.innerHTML = `Você já perdeu <b>${lost.toFixed(1)}kg</b>. No ritmo saudável recomendado, faltam aproximadamente <b>${weeksHealthy} semanas</b> pra bater a meta. Constância importa mais que velocidade.`;
+  }
+
+  const logList = document.getElementById('logList');
+  if(!weightLog.length){
+    logList.innerHTML = '<p class="empty-note">Nenhum registro ainda</p>';
+  } else {
+    logList.innerHTML = '';
+    [...weightLog].reverse().forEach(entry=>{
+      const row = document.createElement('div');
+      row.className = 'log-row';
+      const d = new Date(entry.date+'T00:00:00');
+      row.innerHTML = `<span class="lr-date">${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</span><span class="lr-val">${entry.weight.toFixed(1)}kg${entry.waist?' · '+entry.waist+'cm cintura':''}</span>`;
+      logList.appendChild(row);
+    });
+  }
+
+  drawChart();
+}
+function drawChart(){
+  const svg = document.getElementById('chartSvg');
+  const points = weightLog.slice(-10);
+  if(points.length < 2){
+    svg.innerHTML = '<text x="240" y="80" text-anchor="middle" fill="#5F6570" font-size="13">Registre pelo menos 2 pesagens pra ver o gráfico</text>';
+    return;
+  }
+  const w = 480, h = 160, pad = 24;
+  const weights = points.map(p=>p.weight);
+  const min = Math.min(...weights) - 1, max = Math.max(...weights) + 1;
+  const x = i => pad + (i/(points.length-1)) * (w - pad*2);
+  const y = v => h - pad - ((v-min)/(max-min)) * (h - pad*2);
+  let path = points.map((p,i)=> (i===0?'M':'L') + x(i).toFixed(1) + ',' + y(p.weight).toFixed(1)).join(' ');
+  let dots = points.map((p,i)=> `<circle cx="${x(i).toFixed(1)}" cy="${y(p.weight).toFixed(1)}" r="3.5" fill="#FF5A36"/>`).join('');
+  svg.innerHTML = `<path d="${path}" fill="none" stroke="#FF5A36" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${dots}`;
+}
+
+document.getElementById('btnLog').onclick = async ()=>{
+  const wInput = document.getElementById('inputWeight');
+  const waistInput = document.getElementById('inputWaist');
+  const w = parseFloat(wInput.value);
+  if(!w || w<30 || w>300) return;
+  const entry = {date: todayISO, weight: w};
+  if(waistInput.value) entry.waist = parseFloat(waistInput.value);
+  const existing = weightLog.findIndex(e=>e.date===todayISO);
+  if(existing>=0) weightLog[existing] = entry; else weightLog.push(entry);
+  await storeSet('weight-log', weightLog);
+  wInput.value=''; waistInput.value='';
+  renderProgresso();
+};
+
+document.querySelectorAll('.bottomnav button').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('.bottomnav button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  };
+});
+
+async function computeStreak(){
+  try{
+    const keys = storeListKeys('checkin:');
+    if(!keys.length){ document.getElementById('streakChip').innerHTML = '<b>0</b>/7 dias'; return; }
+    const now = new Date();
+    let count = 0;
+    for(const k of keys){
+      const ds = k.replace('checkin:','');
+      const d = new Date(ds+'T00:00:00');
+      const diff = Math.floor((now - d)/86400000);
+      if(diff>=0 && diff<7){
+        const entry = await storeGet(k);
+        if(entry){
+          const checked = Object.values(entry.exSets||{}).flat().filter(Boolean).length;
+          if(checked>0 || entry.cardioDone) count++;
+        }
+      }
+    }
+    document.getElementById('streakChip').innerHTML = '<b>'+count+'</b>/7 dias';
+  }catch(e){
+    document.getElementById('streakChip').innerHTML = '<b>—</b>/7 dias';
+  }
+}
+
+let phaseStart = todayISO;
+
+function renderPhaseCard(){
+  const el = document.getElementById('phaseCard');
+  const start = new Date(phaseStart+'T00:00:00');
+  const days = Math.max(0, Math.floor((new Date() - start) / 86400000));
+  if(phase===1){
+    el.innerHTML = `
+      <p class="ex-name">Fase 1 · Base</p>
+      <p class="ex-meta" style="margin-bottom:10px;">Dia ${days+1} nesta fase. Foco: reacostumar técnica e articulações antes de intensificar.</p>
+      <p class="ex-note" style="color:var(--text-dim);margin-bottom:12px;">Recomendado ficar aqui por 14-21 dias antes de avançar. Você decide quando está pronto.</p>
+      <button class="cardio-toggle" id="btnAdvancePhase" style="border-color:var(--ember);background:var(--ember-dim);color:var(--ember);">Avançar para Fase 2 · Avançado</button>
+    `;
+  } else {
+    el.innerHTML = `
+      <p class="ex-name">Fase 2 · Avançado</p>
+      <p class="ex-meta" style="margin-bottom:10px;">Compostos livres, bi-sets e drop sets ativos. Dia ${days+1} nesta fase.</p>
+      <button class="cardio-toggle" id="btnAdvancePhase">Voltar para Fase 1 · Base</button>
+    `;
+  }
+  document.getElementById('btnAdvancePhase').onclick = async ()=>{
+    phase = phase===1 ? 2 : 1;
+    phaseStart = todayISO;
+    await storeSet('programa-fase', {phase, phaseStart});
+    openWeekIdx = -1;
+    renderHoje();
+    renderSemana();
+    renderPhaseCard();
+    updateRing();
+  };
+}
+
+let waterMl = 0;
+function waterTarget(){
+  const day = activeWeek()[todayIdx];
+  return day.type==='descanso' ? 3200 : 3800;
+}
+function renderWaterCard(){
+  const target = waterTarget();
+  const pct = Math.min(100, Math.round((waterMl/target)*100));
+  document.getElementById('waterCard').innerHTML = `
+    <div class="water-row">
+      <div>
+        <p class="water-amount">${(waterMl/1000).toFixed(1)}L</p>
+        <p class="water-target">meta hoje: ${(target/1000).toFixed(1)}L</p>
+      </div>
+      <p class="water-target">${pct}%</p>
+    </div>
+    <div class="water-bar-track"><div class="water-bar-fill" style="width:${pct}%"></div></div>
+    <div class="water-btns">
+      <button class="water-btn minus" id="waterMinus">-250ml</button>
+      <button class="water-btn" id="waterPlus250">+250ml</button>
+      <button class="water-btn" id="waterPlus500">+500ml</button>
+    </div>
+  `;
+  document.getElementById('waterMinus').onclick = ()=> updateWater(-250);
+  document.getElementById('waterPlus250').onclick = ()=> updateWater(250);
+  document.getElementById('waterPlus500').onclick = ()=> updateWater(500);
+}
+async function updateWater(delta){
+  waterMl = Math.max(0, waterMl+delta);
+  await storeSet('water:'+todayISO, waterMl);
+  renderWaterCard();
+}
+
+const SUPPLEMENTS = [
+  {key:'whey', name:'Whey protein', desc:'25-30g, pós-treino ou no lanche'},
+  {key:'creatina', name:'Creatina monohidratada', desc:'3-5g, todo dia (inclusive descanso)'},
+  {key:'multi', name:'Multivitamínico', desc:'opcional, 1x ao dia'},
+];
+let suppState = {};
+function renderSuppCard(){
+  const el = document.getElementById('suppCard');
+  el.innerHTML = SUPPLEMENTS.map(s=>`
+    <div class="supp-row">
+      <div>
+        <p class="supp-name">${s.name}</p>
+        <p class="supp-desc">${s.desc}</p>
+      </div>
+      <div class="supp-check ${suppState[s.key]?'on':''}" data-supp="${s.key}">${suppState[s.key]?'✓':''}</div>
+    </div>
+  `).join('');
+  el.querySelectorAll('.supp-check').forEach(chk=>{
+    chk.onclick = async ()=>{
+      const key = chk.dataset.supp;
+      suppState[key] = !suppState[key];
+      await storeSet('supp:'+todayISO, suppState);
+      renderSuppCard();
+    };
+  });
+}
+
+async function init(){
+  const savedPhase = await storeGet('programa-fase');
+  if(savedPhase){ phase = savedPhase.phase; phaseStart = savedPhase.phaseStart || todayISO; }
+  else { await storeSet('programa-fase', {phase, phaseStart}); }
+
+  const saved = await storeGet('checkin:'+todayISO);
+  if(saved) checkinState = saved;
+  renderHoje();
+  renderSemana();
+  renderPhaseCard();
+  await loadWeightLog();
+  computeStreak();
+
+  const savedWater = await storeGet('water:'+todayISO);
+  if(typeof savedWater === 'number') waterMl = savedWater;
+  renderWaterCard();
+
+  const savedSupp = await storeGet('supp:'+todayISO);
+  if(savedSupp) suppState = savedSupp;
+  renderSuppCard();
+}
+init();
+</script>
+</body>
+</html>
