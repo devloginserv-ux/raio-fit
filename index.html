@@ -13,6 +13,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <style>
 :root{
   --bg:#14161A;
@@ -214,10 +217,73 @@ body{
   background:rgba(0,0,0,0.15);border:none;color:#1A0D08;border-radius:10px;
   width:38px;height:38px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
 }
+
+/* Auth screens */
+#authLoading{
+  position:fixed;inset:0;background:var(--bg);z-index:100;
+  display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:14px;
+}
+#loginScreen{
+  position:fixed;inset:0;background:var(--bg);z-index:90;
+  display:none;flex-direction:column;justify-content:center;padding:24px;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom));
+}
+#loginScreen.visible{display:flex;}
+.login-wrap{max-width:380px;margin:0 auto;width:100%;}
+.login-title{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:38px;text-align:center;margin:0 0 4px;}
+.login-sub{text-align:center;color:var(--text-dim);font-size:13.5px;margin:0 0 32px;}
+.login-field{margin-bottom:14px;}
+.login-field label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;}
+.login-field input{
+  width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:14px;font-size:16px;font-family:'Work Sans',sans-serif;
+}
+.login-btn{
+  width:100%;background:var(--ember);color:#1A0D08;border:none;border-radius:10px;
+  padding:15px;font-weight:600;font-size:15px;font-family:'Work Sans',sans-serif;cursor:pointer;margin-top:8px;
+}
+.login-btn:disabled{opacity:0.5;}
+.login-switch{text-align:center;margin-top:20px;font-size:13.5px;color:var(--text-dim);}
+.login-switch a{color:var(--ember);text-decoration:none;font-weight:500;}
+.login-error{
+  background:var(--ember-dim);color:var(--ember);border-radius:10px;padding:12px 14px;
+  font-size:13px;margin-bottom:14px;display:none;line-height:1.4;
+}
+.login-error.visible{display:block;}
+.login-forgot{text-align:center;margin-top:14px;font-size:12.5px;}
+.login-forgot a{color:var(--text-dim);text-decoration:underline;}
+
+.logout-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.logout-btn{
+  background:var(--surface-2);color:var(--text-dim);border:1px solid var(--line);
+  border-radius:20px;padding:7px 14px;font-size:12px;font-family:'Work Sans',sans-serif;cursor:pointer;
+}
 </style>
 </head>
 <body>
 
+<div id="authLoading">Carregando...</div>
+
+<div id="loginScreen">
+  <div class="login-wrap">
+    <p class="login-title display">RAIO FIT</p>
+    <p class="login-sub" id="loginSubtitle">Entra na sua conta pra continuar</p>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" autocomplete="email" inputmode="email">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="loginPassword" autocomplete="current-password">
+    </div>
+    <button class="login-btn" id="loginSubmitBtn">Entrar</button>
+    <p class="login-switch"><span id="loginSwitchText">Não tem conta?</span> <a href="#" id="loginSwitchLink">Criar conta</a></p>
+    <p class="login-forgot"><a href="#" id="forgotPasswordLink">Esqueci minha senha</a></p>
+  </div>
+</div>
+
+<div id="appMain" style="display:none;">
 <div class="timer-banner hidden" id="timerBanner">
   <div>
     <p class="tb-label" id="tbLabel">Descanso</p>
@@ -257,6 +323,10 @@ body{
 </section>
 
 <section class="tab" id="tab-progresso">
+  <div class="logout-row">
+    <p class="water-target" id="userEmailLabel" style="margin:0;"></p>
+    <button class="logout-btn" id="logoutBtn">Sair</button>
+  </div>
   <div class="section-lbl">Seu programa</div>
   <div class="card" id="phaseCard" style="margin-bottom:20px;"></div>
 
@@ -329,126 +399,151 @@ body{
     Nutrição
   </button>
 </nav>
+</div>
 
 <script>
 const WEEK_FASE1 = [
-  { day:'Segunda', label:'Treino A', focus:'Pernas (quadríceps) + abdômen', type:'forca', tag:'PERNA · QUAD',
-    finisher:{desc:'8-10 min de caminhada leve na esteira. Pernas já exigidas hoje, mantenha intensidade baixa — é só um empurrão extra no gasto calórico.'},
+  { day:'Segunda', label:'Treino A', focus:'Costas + bíceps', type:'forca', tag:'COSTAS · BÍCEPS',
+    finisher:{desc:'8-10 min de caminhada leve na esteira, ritmo tranquilo.'},
     exercises:[
-      {name:'Leg press 45°', sets:4, reps:'12', rest:75},
-      {name:'Agachamento no smith', sets:4, reps:'10', rest:90},
+      {name:'Remada T-bar', sets:4, reps:'10', rest:90},
+      {name:'Remada unilateral com halter (serrote)', sets:3, reps:'12 cada lado', rest:75},
+      {name:'Puxada aberta (pulley)', sets:4, reps:'12', rest:75},
+      {name:'Hiperextensão lombar', sets:3, reps:'15', rest:60},
+      {name:'Rosca na polia', sets:3, reps:'12', rest:15, technique:'BI-SET'},
+      {name:'Rosca alternada com halteres', sets:3, reps:'12', rest:60, technique:'BI-SET', note:'Direto após a rosca na polia, sem descanso entre os dois.'},
+    ]},
+  { day:'Terça', label:'Treino B', focus:'Peito + ombro + tríceps', type:'forca', tag:'PEITO · OMBRO',
+    shoulderWarn:true,
+    finisher:{desc:'12-15 min de bike ou caminhada inclinada, ritmo moderado.'},
+    exercises:[
+      {name:'Supino inclinado (máquina ou halteres)', sets:4, reps:'12', rest:90},
+      {name:'Supino reto (máquina)', sets:3, reps:'12', rest:90},
+      {name:'Voador (peck deck)', sets:3, reps:'12', rest:60},
+      {name:'Elevação lateral', sets:3, reps:'15', rest:45, note:'Carga leve. Se o ombro esquerdo incomodar, reduza a amplitude.'},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:15, technique:'BI-SET'},
+      {name:'Tríceps testa com barra (skull crusher)', sets:3, reps:'10', rest:60, technique:'BI-SET', note:'Direto após o tríceps corda.'},
+    ]},
+  { day:'Quarta', label:'Treino C', focus:'Pernas (ênfase posterior)', type:'forca', tag:'PERNA · POSTERIOR',
+    finisher:{desc:'8-10 min de caminhada leve. Pernas já exigidas, mantenha tranquilo.'},
+    exercises:[
+      {name:'Hack (ou agachamento na máquina)', sets:4, reps:'10', rest:90},
+      {name:'Leg press 45°', sets:3, reps:'12', rest:90},
       {name:'Cadeira extensora', sets:3, reps:'15', rest:60},
       {name:'Cadeira flexora', sets:3, reps:'15', rest:60},
+      {name:'Mesa flexora', sets:3, reps:'15', rest:60},
+      {name:'Stiff com halteres', sets:3, reps:'12', rest:90},
       {name:'Panturrilha em pé', sets:4, reps:'15', rest:45},
-      {name:'Prancha abdominal', sets:3, reps:'30-40s', rest:45},
-      {name:'Elevação de pernas', sets:3, reps:'15', rest:45},
     ]},
-  { day:'Terça', label:'Treino B', focus:'Costas + bíceps', type:'forca', tag:'COSTAS · BÍCEPS',
-    finisher:{desc:'12-15 min de bike ou caminhada inclinada em ritmo moderado. Pernas ainda frescas hoje, dá pra intensificar um pouco mais aqui.'},
-    exercises:[
-      {name:'Puxada frente (pulley)', sets:4, reps:'12', rest:75},
-      {name:'Remada baixa no cabo', sets:3, reps:'12', rest:75},
-      {name:'Remada unilateral com halter', sets:3, reps:'12 cada lado', rest:60},
-      {name:'Rosca direta na barra', sets:3, reps:'12', rest:60},
-      {name:'Rosca alternada com halteres', sets:3, reps:'12', rest:60},
-      {name:'Rosca martelo', sets:3, reps:'12', rest:60},
-    ]},
-  { day:'Quarta', label:'Cardio', focus:'Caminhada inclinada + abdômen', type:'cardio',
+  { day:'Quinta', label:'Cardio', focus:'Intervalado + abdômen', type:'cardio',
     cardio:{desc:'25-30 min na esteira inclinada (8-12%), ritmo em que você ainda consegue falar em frases curtas.'},
     exercises:[
       {name:'Abdominal infra (pernas ou joelhos)', sets:3, reps:'15', rest:45},
       {name:'Prancha lateral', sets:2, reps:'30s cada lado', rest:45},
       {name:'Abdominal bicicleta', sets:3, reps:'20', rest:45},
     ]},
-  { day:'Quinta', label:'Treino C', focus:'Peito + ombro + tríceps', type:'forca', tag:'PEITO · OMBRO',
+  { day:'Sexta', label:'Treino D', focus:'Superiores completo', type:'forca', tag:'SUPERIORES',
     shoulderWarn:true,
-    finisher:{desc:'10-12 min de caminhada inclinada em ritmo moderado.'},
+    finisher:{desc:'10 min de caminhada leve pra fechar a semana de superiores.'},
     exercises:[
-      {name:'Supino reto com halteres', sets:4, reps:'12', rest:90},
-      {name:'Crucifixo na máquina (peck deck)', sets:3, reps:'12', rest:60},
-      {name:'Desenvolvimento com halteres sentado', sets:3, reps:'12', rest:75, note:'Carga leve/moderada. Se o ombro esquerdo incomodar, troque por elevação lateral leve.'},
-      {name:'Elevação lateral leve', sets:3, reps:'15', rest:45},
+      {name:'Supino reto (máquina ou halteres)', sets:3, reps:'12', rest:75},
+      {name:'Crucifixo (voador)', sets:3, reps:'12', rest:60},
+      {name:'Puxada frente', sets:3, reps:'12', rest:75},
+      {name:'Remada baixa (cabo)', sets:3, reps:'12', rest:75},
+      {name:'Desenvolvimento com halteres', sets:3, reps:'12', rest:75, note:'Carga leve/moderada, atenção ao ombro esquerdo.'},
+      {name:'Elevação lateral', sets:3, reps:'15', rest:45},
+      {name:'Rosca direta', sets:3, reps:'12', rest:60},
       {name:'Tríceps corda', sets:3, reps:'12', rest:60},
-      {name:'Tríceps francês com halter', sets:3, reps:'12', rest:60},
     ]},
-  { day:'Sexta', label:'Treino D', focus:'Pernas (posterior/glúteo) + bíceps', type:'forca', tag:'POSTERIOR · GLÚTEO',
-    finisher:{desc:'8-10 min de caminhada leve. Pernas bem exigidas hoje, mantenha bem tranquilo aqui.'},
+  { day:'Sábado', label:'Treino E', focus:'Pernas (ênfase glúteo)', type:'forca', tag:'PERNA · GLÚTEO',
+    finisher:{desc:'8-10 min de caminhada leve. Pernas bem exigidas na semana, mantenha bem tranquilo.'},
     exercises:[
-      {name:'Stiff com halteres', sets:4, reps:'12', rest:90},
-      {name:'Elevação pélvica (hip thrust)', sets:4, reps:'12', rest:90},
+      {name:'Agachamento sumô no smith', sets:4, reps:'12', rest:90, note:'Pés bem abertos, pontas viradas pra fora — ênfase em glúteo e adutor.'},
+      {name:'Hack (ou afundo)', sets:3, reps:'12', rest:90},
+      {name:'Leg press (pés altos, foco glúteo)', sets:3, reps:'12', rest:90},
       {name:'Cadeira flexora', sets:3, reps:'15', rest:60},
-      {name:'Afundo (passada)', sets:3, reps:'12 cada perna', rest:60},
-      {name:'Rosca scott', sets:3, reps:'12', rest:60},
-      {name:'Rosca inversa', sets:3, reps:'12', rest:60},
+      {name:'Mesa flexora', sets:3, reps:'15', rest:60},
+      {name:'Panturrilha sentado', sets:4, reps:'15', rest:45},
     ]},
-  { day:'Sábado', label:'Cardio leve', focus:'Caminhada rápida ou trote (opcional)', type:'cardio-leve',
-    cardio:{desc:'30-40 min de caminhada rápida ou trote leve, no seu ritmo. Dia mais leve pra ativar sem acumular fadiga.'},
-    exercises:[]},
   { day:'Domingo', label:'Descanso', focus:'Recuperação total', type:'descanso', exercises:[]},
 ];
 
 const WEEK_FASE2 = [
-  { day:'Segunda', label:'Treino A', focus:'Pernas (quadríceps) + abdômen', type:'forca', tag:'PERNA · QUAD',
-    finisher:{desc:'8-10 min de caminhada leve na esteira. Pernas já exigidas hoje, mantenha intensidade baixa — é só um empurrão extra no gasto calórico.'},
+  { day:'Segunda', label:'Treino A', focus:'Costas + bíceps', type:'forca', tag:'COSTAS · BÍCEPS',
+    finisher:{desc:'8-10 min de caminhada leve na esteira, ritmo tranquilo.'},
     exercises:[
-      {name:'Agachamento livre (barra)', sets:4, reps:'8-10', rest:120, note:'Profundidade controlada, core travado. Suba o peso aos poucos nas primeiras 2 semanas de volta.'},
-      {name:'Afundo com halteres (passada)', sets:3, reps:'12 cada perna', rest:75},
-      {name:'Leg press 45°', sets:3, reps:'12', rest:20, technique:'BI-SET'},
-      {name:'Cadeira extensora', sets:3, reps:'15', rest:90, technique:'BI-SET', note:'Faça direto após o leg press (sem descanso entre os dois). Na 3ª série, ao falhar, reduza a carga e continue por mais 8-10 reps (drop set).'},
+      {name:'Remada T-bar', sets:4, reps:'8-10', rest:90},
+      {name:'Barra fixa (ou puxada aberta)', sets:4, reps:'8-10', rest:90, note:'Se ainda não faz barra fixa limpa, use a puxada aberta na polia com carga que permita boa execução.'},
+      {name:'Remada unilateral com halter (serrote)', sets:3, reps:'12 cada lado', rest:75},
+      {name:'Hiperextensão lombar com peso', sets:3, reps:'15', rest:60},
+      {name:'Rosca na polia', sets:3, reps:'12', rest:15, technique:'BI-SET'},
+      {name:'Rosca martelo', sets:3, reps:'12', rest:60, technique:'BI-SET', note:'Direto após a rosca na polia, sem descanso entre os dois.'},
+    ]},
+  { day:'Terça', label:'Treino B', focus:'Peito + ombro + tríceps', type:'forca', tag:'PEITO · OMBRO',
+    shoulderWarn:true,
+    finisher:{desc:'12-15 min de bike ou caminhada inclinada, ritmo moderado.'},
+    exercises:[
+      {name:'Supino inclinado com halteres', sets:4, reps:'8-10', rest:100},
+      {name:'Supino reto com barra', sets:4, reps:'8-10', rest:120, note:'Ombro esquerdo primeiro: teste com barra vazia antes de carregar.'},
+      {name:'Voador (crossover ou peck deck)', sets:3, reps:'12', rest:15, technique:'BI-SET'},
+      {name:'Flexão de braço até a falha', sets:3, reps:'até falhar', rest:75, technique:'BI-SET', note:'Direto após o voador, sem descanso entre os dois.'},
+      {name:'Elevação lateral leve', sets:3, reps:'15', rest:45},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:15, technique:'DROP SET'},
+      {name:'Tríceps testa com barra (skull crusher)', sets:3, reps:'10', rest:60, technique:'BI-SET', note:'Direto após o tríceps corda. Na última série do tríceps corda, ao falhar, reduza a carga e continue por mais 8-10 reps antes de partir pro testa.'},
+    ]},
+  { day:'Quarta', label:'Treino C', focus:'Pernas (ênfase posterior)', type:'forca', tag:'PERNA · POSTERIOR',
+    finisher:{desc:'8-10 min de caminhada leve. Pernas já exigidas, mantenha tranquilo.'},
+    exercises:[
+      {name:'Hack (ou agachamento livre)', sets:4, reps:'8-10', rest:120},
+      {name:'Leg press 45°', sets:3, reps:'12', rest:15, technique:'BI-SET'},
+      {name:'Cadeira extensora', sets:3, reps:'15', rest:90, technique:'BI-SET', note:'Faça direto após o leg press. Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps (drop set).'},
+      {name:'Cadeira flexora', sets:3, reps:'12', rest:60},
+      {name:'Mesa flexora', sets:3, reps:'12', rest:60},
+      {name:'Stiff com halteres', sets:4, reps:'10', rest:120, note:'Controle a descida, sinta o alongamento no posterior de coxa, não arredonde a lombar.'},
       {name:'Panturrilha em pé', sets:4, reps:'15', rest:45},
-      {name:'Elevação de pernas na barra fixa', sets:3, reps:'12', rest:60, note:'Sem balanço, controle a descida. Se ainda não aguenta, troque por elevação de pernas no solo.'},
-      {name:'Prancha com toque no ombro', sets:3, reps:'30-40s', rest:45},
     ]},
-  { day:'Terça', label:'Treino B', focus:'Costas + bíceps', type:'forca', tag:'COSTAS · BÍCEPS',
-    finisher:{desc:'12-15 min de bike ou caminhada inclinada em ritmo moderado. Pernas ainda frescas hoje, dá pra intensificar um pouco mais aqui.'},
-    exercises:[
-      {name:'Levantamento terra romeno (RDL)', sets:4, reps:'10', rest:120, note:'Controle a descida, sinta o alongamento no posterior de coxa, não arredonde a lombar.'},
-      {name:'Barra fixa (ou puxada frente)', sets:4, reps:'8-10', rest:90, note:'Se ainda não faz barra fixa limpa, use a puxada frente com carga que permita boa execução.'},
-      {name:'Remada curvada com barra', sets:3, reps:'10', rest:90},
-      {name:'Remada unilateral com halter', sets:3, reps:'12 cada lado', rest:60},
-      {name:'Rosca direta com barra', sets:3, reps:'10', rest:15, technique:'BI-SET'},
-      {name:'Rosca martelo', sets:3, reps:'12', rest:60, technique:'BI-SET', note:'Direto após a rosca direta, sem descanso entre os dois.'},
-      {name:'Rosca 21', sets:1, reps:'7+7+7', rest:0, technique:'FINALIZADOR', note:'7 reps na metade inferior + 7 na metade superior + 7 na amplitude completa, tudo numa série só. Carga leve.'},
-    ]},
-  { day:'Quarta', label:'Cardio', focus:'Intervalado + abdômen', type:'cardio',
+  { day:'Quinta', label:'Cardio', focus:'Intervalado + abdômen', type:'cardio',
     cardio:{desc:'Intervalado: 5 min de aquecimento leve + 8x (1 min forte / 1 min caminhada de recuperação) + 5 min de desaquecimento. Cerca de 25 min no total, na esteira ou ao ar livre.'},
     exercises:[
       {name:'Abdominal na polia (cable crunch)', sets:3, reps:'15', rest:60},
       {name:'Prancha lateral com elevação de quadril', sets:2, reps:'12 cada lado', rest:45},
       {name:'Roda abdominal (ab wheel)', sets:3, reps:'10', rest:60, note:'Se ainda não tem a roda, substitua por prancha longa de 45-60s.'},
     ]},
-  { day:'Quinta', label:'Treino C', focus:'Peito + ombro + tríceps', type:'forca', tag:'PEITO · OMBRO',
+  { day:'Sexta', label:'Treino D', focus:'Superiores completo', type:'forca', tag:'SUPERIORES',
     shoulderWarn:true,
-    finisher:{desc:'10-12 min de caminhada inclinada em ritmo moderado.'},
+    finisher:{desc:'10-12 min de caminhada leve/moderada pra fechar a semana de superiores.'},
     exercises:[
-      {name:'Supino reto com barra', sets:4, reps:'8-10', rest:120, note:'Ombro esquerdo primeiro: teste com barra vazia antes de carregar.'},
-      {name:'Supino inclinado com halteres', sets:3, reps:'10', rest:90},
-      {name:'Crucifixo com halteres', sets:3, reps:'12', rest:15, technique:'BI-SET'},
-      {name:'Flexão de braço até a falha', sets:3, reps:'até falhar', rest:75, technique:'BI-SET', note:'Direto após o crucifixo, sem descanso entre os dois.'},
-      {name:'Desenvolvimento com halteres sentado', sets:3, reps:'12', rest:75, note:'Carga leve/moderada. Se o ombro esquerdo incomodar, troque por elevação lateral leve.'},
-      {name:'Elevação lateral leve', sets:3, reps:'15', rest:45},
-      {name:'Tríceps corda', sets:3, reps:'12', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Supino com halteres', sets:3, reps:'10', rest:15, technique:'BI-SET'},
+      {name:'Crucifixo com halteres', sets:3, reps:'12', rest:75, technique:'BI-SET', note:'Direto após o supino, sem descanso entre os dois.'},
+      {name:'Remada unilateral com halter', sets:3, reps:'12 cada lado', rest:75},
+      {name:'Puxada frente (pulley)', sets:3, reps:'12', rest:75},
+      {name:'Desenvolvimento com halteres sentado', sets:3, reps:'12', rest:75, note:'Carga leve/moderada, atenção ao ombro esquerdo.'},
+      {name:'Elevação lateral leve', sets:3, reps:'15', rest:15, technique:'BI-SET'},
+      {name:'Rosca alternada com halteres', sets:3, reps:'12', rest:60, technique:'BI-SET', note:'Direto após a elevação lateral.'},
+      {name:'Tríceps francês com halter', sets:3, reps:'12', rest:60},
     ]},
-  { day:'Sexta', label:'Treino D', focus:'Pernas (posterior/glúteo) + bíceps', type:'forca', tag:'POSTERIOR · GLÚTEO',
-    finisher:{desc:'8-10 min de caminhada leve. Pernas muito exigidas pelo treino, mantenha bem tranquilo aqui.'},
+  { day:'Sábado', label:'Treino E', focus:'Pernas (ênfase glúteo)', type:'forca', tag:'PERNA · GLÚTEO',
+    finisher:{desc:'8-10 min de caminhada leve. Pernas bem exigidas na semana, mantenha bem tranquilo.'},
     exercises:[
-      {name:'Levantamento terra convencional', sets:4, reps:'8', rest:150, note:'Priorize técnica sobre carga, especialmente nas primeiras semanas de volta.'},
-      {name:'Elevação pélvica com barra (hip thrust)', sets:4, reps:'10', rest:90},
+      {name:'Agachamento búlgaro com halteres', sets:4, reps:'10 cada perna', rest:90, note:'Excelente pra glúteo e equilíbrio. Apoie o pé de trás num banco baixo, desça controlado.'},
+      {name:'Levantamento terra convencional (ou sumô)', sets:4, reps:'8', rest:150, note:'Priorize técnica sobre carga, especialmente nas primeiras semanas de volta.'},
+      {name:'Passada com halteres (afundo)', sets:3, reps:'12 cada perna', rest:75},
       {name:'Cadeira flexora', sets:3, reps:'12', rest:60},
-      {name:'Passada com halteres (walking lunge)', sets:3, reps:'12 cada perna', rest:75},
-      {name:'Rosca scott (barra W)', sets:3, reps:'10', rest:75},
-      {name:'Rosca alternada com halteres', sets:3, reps:'12', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
-      {name:'Rosca concentrada', sets:2, reps:'12 cada braço', rest:60, technique:'FINALIZADOR'},
+      {name:'Mesa flexora', sets:3, reps:'12', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Panturrilha sentado', sets:4, reps:'15', rest:45},
     ]},
-  { day:'Sábado', label:'Cardio leve', focus:'Recuperação ativa (opcional)', type:'cardio-leve',
-    cardio:{desc:'30-40 min de caminhada rápida ou trote leve. Se estiver com energia sobrando, troque por 15-20 min de bike ou remo em ritmo moderado. Dia de recuperação ativa, sem forçar.'},
-    exercises:[]},
   { day:'Domingo', label:'Descanso', focus:'Recuperação total', type:'descanso', exercises:[]},
 ];
 
-const todayIdx = (new Date().getDay() + 6) % 7;
-const dateISO = d => d.toISOString().slice(0,10);
-const todayISO = dateISO(new Date());
+function dateISO(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+function todayIdx(){ return (new Date().getDay() + 6) % 7; }
+function todayISO(){ return dateISO(new Date()); }
+let _lastKnownDate = todayISO();
 
 let phase = 1;
 function activeWeek(){ return phase===1 ? WEEK_FASE1 : WEEK_FASE2; }
@@ -518,7 +613,7 @@ function attachInteractiveHandlers(container, day){
       const exDef = day.exercises.find(e=>e.name===exName);
       if(!checkinState.exSets[exName]) checkinState.exSets[exName] = new Array(exDef.sets).fill(false);
       checkinState.exSets[exName][setI] = !checkinState.exSets[exName][setI];
-      await storeSet('checkin:'+todayISO, checkinState);
+      await storeSet('checkin:'+todayISO(), checkinState);
       renderHoje();
       renderSemana();
       updateRing();
@@ -531,7 +626,7 @@ function attachInteractiveHandlers(container, day){
   if(cardioBtn){
     cardioBtn.onclick = async ()=>{
       checkinState.cardioDone = !checkinState.cardioDone;
-      await storeSet('checkin:'+todayISO, checkinState);
+      await storeSet('checkin:'+todayISO(), checkinState);
       renderHoje();
       renderSemana();
       updateRing();
@@ -541,7 +636,7 @@ function attachInteractiveHandlers(container, day){
   if(finisherBtn){
     finisherBtn.onclick = async ()=>{
       checkinState.finisherDone = !checkinState.finisherDone;
-      await storeSet('checkin:'+todayISO, checkinState);
+      await storeSet('checkin:'+todayISO(), checkinState);
       renderHoje();
       renderSemana();
       updateRing();
@@ -549,22 +644,47 @@ function attachInteractiveHandlers(container, day){
   }
 }
 
+let appData = {};
+let currentUser = null;
+let firestoreDocRef = null;
+let saveDebounceTimer = null;
+
 async function storeGet(key){
-  try{ const v = localStorage.getItem(key); return v!==null ? JSON.parse(v) : null; }
-  catch(e){ return null; }
+  return Object.prototype.hasOwnProperty.call(appData, key) ? appData[key] : null;
 }
 async function storeSet(key,val){
-  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  appData[key] = val;
+  scheduleSave();
 }
 function storeListKeys(prefix){
+  return Object.keys(appData).filter(k => k.startsWith(prefix));
+}
+function scheduleSave(){
+  if(!firestoreDocRef) return;
+  clearTimeout(saveDebounceTimer);
+  saveDebounceTimer = setTimeout(async ()=>{
+    try{ await firestoreDocRef.set({ data: appData }, { merge:true }); }
+    catch(e){ console.error('Erro ao salvar no Firestore:', e); }
+  }, 500);
+}
+async function loadAppDataFromFirestore(uid){
+  firestoreDocRef = db.collection('users').doc(uid);
   try{
-    const out = [];
-    for(let i=0;i<localStorage.length;i++){
-      const k = localStorage.key(i);
-      if(k && k.startsWith(prefix)) out.push(k);
+    const snap = await firestoreDocRef.get();
+    if(snap.exists && snap.data().data){
+      appData = snap.data().data;
+    } else {
+      appData = {};
+      await firestoreDocRef.set({
+        data: appData,
+        email: currentUser ? currentUser.email : null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
     }
-    return out;
-  }catch(e){ return []; }
+  }catch(e){
+    console.error('Erro ao carregar dados do Firestore:', e);
+    appData = {};
+  }
 }
 
 function totalSetsFor(day){
@@ -582,7 +702,7 @@ function checkedSetsCount(){
 }
 
 function renderHoje(){
-  const day = activeWeek()[todayIdx];
+  const day = activeWeek()[todayIdx()];
   document.getElementById('topDate').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long', day:'numeric', month:'long'});
   document.getElementById('topTitle').textContent = day.label;
 
@@ -622,7 +742,7 @@ function renderHoje(){
 }
 
 function updateRing(){
-  const day = activeWeek()[todayIdx];
+  const day = activeWeek()[todayIdx()];
   const total = totalSetsFor(day);
   const checked = checkedSetsCount();
   const pct = total>0 ? Math.round((checked/total)*100) : 0;
@@ -635,7 +755,7 @@ function renderSemana(){
   const list = document.getElementById('weekList');
   list.innerHTML = '';
   activeWeek().forEach((day, i)=>{
-    const isToday = i === todayIdx;
+    const isToday = i === todayIdx();
     const isOpen = openWeekIdx === i;
     const card = document.createElement('div');
     card.className = 'week-card' + (isToday?' today':'') + (isOpen?' open':'');
@@ -776,9 +896,9 @@ document.getElementById('btnLog').onclick = async ()=>{
   const waistInput = document.getElementById('inputWaist');
   const w = parseFloat(wInput.value);
   if(!w || w<30 || w>300) return;
-  const entry = {date: todayISO, weight: w};
+  const entry = {date: todayISO(), weight: w};
   if(waistInput.value) entry.waist = parseFloat(waistInput.value);
-  const existing = weightLog.findIndex(e=>e.date===todayISO);
+  const existing = weightLog.findIndex(e=>e.date===todayISO());
   if(existing>=0) weightLog[existing] = entry; else weightLog.push(entry);
   await storeSet('weight-log', weightLog);
   wInput.value=''; waistInput.value='';
@@ -818,7 +938,7 @@ async function computeStreak(){
   }
 }
 
-let phaseStart = todayISO;
+let phaseStart = todayISO();
 
 function renderPhaseCard(){
   const el = document.getElementById('phaseCard');
@@ -840,7 +960,7 @@ function renderPhaseCard(){
   }
   document.getElementById('btnAdvancePhase').onclick = async ()=>{
     phase = phase===1 ? 2 : 1;
-    phaseStart = todayISO;
+    phaseStart = todayISO();
     await storeSet('programa-fase', {phase, phaseStart});
     openWeekIdx = -1;
     renderHoje();
@@ -852,7 +972,7 @@ function renderPhaseCard(){
 
 let waterMl = 0;
 function waterTarget(){
-  const day = activeWeek()[todayIdx];
+  const day = activeWeek()[todayIdx()];
   return day.type==='descanso' ? 3200 : 3800;
 }
 function renderWaterCard(){
@@ -879,7 +999,7 @@ function renderWaterCard(){
 }
 async function updateWater(delta){
   waterMl = Math.max(0, waterMl+delta);
-  await storeSet('water:'+todayISO, waterMl);
+  await storeSet('water:'+todayISO(), waterMl);
   renderWaterCard();
 }
 
@@ -904,34 +1024,160 @@ function renderSuppCard(){
     chk.onclick = async ()=>{
       const key = chk.dataset.supp;
       suppState[key] = !suppState[key];
-      await storeSet('supp:'+todayISO, suppState);
+      await storeSet('supp:'+todayISO(), suppState);
       renderSuppCard();
     };
   });
 }
 
-async function init(){
-  const savedPhase = await storeGet('programa-fase');
-  if(savedPhase){ phase = savedPhase.phase; phaseStart = savedPhase.phaseStart || todayISO; }
-  else { await storeSet('programa-fase', {phase, phaseStart}); }
-
-  const saved = await storeGet('checkin:'+todayISO);
-  if(saved) checkinState = saved;
+async function loadDailyState(){
+  const saved = await storeGet('checkin:'+todayISO());
+  checkinState = saved || {exSets:{}, cardioDone:false, finisherDone:false};
   renderHoje();
   renderSemana();
-  renderPhaseCard();
-  await loadWeightLog();
+  updateRing();
   computeStreak();
 
-  const savedWater = await storeGet('water:'+todayISO);
-  if(typeof savedWater === 'number') waterMl = savedWater;
+  const savedWater = await storeGet('water:'+todayISO());
+  waterMl = (typeof savedWater === 'number') ? savedWater : 0;
   renderWaterCard();
 
-  const savedSupp = await storeGet('supp:'+todayISO);
-  if(savedSupp) suppState = savedSupp;
+  const savedSupp = await storeGet('supp:'+todayISO());
+  suppState = savedSupp || {};
   renderSuppCard();
 }
-init();
+
+function checkDateRollover(){
+  const now = todayISO();
+  if(now !== _lastKnownDate){
+    _lastKnownDate = now;
+    loadDailyState();
+    renderPhaseCard();
+  }
+}
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checkDateRollover(); });
+window.addEventListener('focus', checkDateRollover);
+window.addEventListener('pageshow', checkDateRollover);
+setInterval(checkDateRollover, 60000);
+
+async function init(){
+  const savedPhase = await storeGet('programa-fase');
+  if(savedPhase){ phase = savedPhase.phase; phaseStart = savedPhase.phaseStart || todayISO(); }
+  else { await storeSet('programa-fase', {phase, phaseStart}); }
+
+  renderPhaseCard();
+  await loadWeightLog();
+  await loadDailyState();
+}
+
+// --- Firebase Auth ---
+const firebaseConfig = {
+  apiKey: "AIzaSyB236L-7ofvfBWggMG7jPM2iks_ouC2uNU",
+  authDomain: "raio-fit.firebaseapp.com",
+  projectId: "raio-fit",
+  storageBucket: "raio-fit.firebasestorage.app",
+  messagingSenderId: "748618908515",
+  appId: "1:748618908515:web:c4245e52d16fb89cdb4956",
+  measurementId: "G-1QHBQ9ZQ03"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let isSignupMode = false;
+
+function showLoginMessage(msg, isError){
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--ember)' : 'var(--good)';
+  el.style.background = isError ? 'var(--ember-dim)' : 'var(--good-dim)';
+  el.classList.add('visible');
+}
+function hideLoginMessage(){
+  document.getElementById('loginError').classList.remove('visible');
+}
+function translateAuthError(code){
+  const map = {
+    'auth/invalid-email': 'Email inválido.',
+    'auth/user-not-found': 'Não existe conta com esse email.',
+    'auth/wrong-password': 'Senha incorreta.',
+    'auth/invalid-credential': 'Email ou senha incorretos.',
+    'auth/email-already-in-use': 'Já existe uma conta com esse email. Toca em "Entrar".',
+    'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.',
+    'auth/missing-password': 'Digite uma senha.',
+    'auth/too-many-requests': 'Muitas tentativas. Tenta de novo em alguns minutos.',
+  };
+  return map[code] || 'Algo deu errado. Tenta de novo.';
+}
+
+document.getElementById('loginSwitchLink').onclick = (e)=>{
+  e.preventDefault();
+  isSignupMode = !isSignupMode;
+  document.getElementById('loginSubmitBtn').textContent = isSignupMode ? 'Criar conta' : 'Entrar';
+  document.getElementById('loginSubtitle').textContent = isSignupMode ? 'Cria sua conta pra começar' : 'Entra na sua conta pra continuar';
+  document.getElementById('loginSwitchText').textContent = isSignupMode ? 'Já tem conta?' : 'Não tem conta?';
+  document.getElementById('loginSwitchLink').textContent = isSignupMode ? 'Entrar' : 'Criar conta';
+  hideLoginMessage();
+};
+
+document.getElementById('loginSubmitBtn').onclick = async ()=>{
+  hideLoginMessage();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if(!email || !password){ showLoginMessage('Preenche email e senha.', true); return; }
+  const btn = document.getElementById('loginSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = isSignupMode ? 'Criando conta...' : 'Entrando...';
+  try{
+    if(isSignupMode){
+      await auth.createUserWithEmailAndPassword(email, password);
+    } else {
+      await auth.signInWithEmailAndPassword(email, password);
+    }
+  }catch(e){
+    showLoginMessage(translateAuthError(e.code), true);
+    btn.disabled = false;
+    btn.textContent = isSignupMode ? 'Criar conta' : 'Entrar';
+  }
+};
+
+document.getElementById('forgotPasswordLink').onclick = async (e)=>{
+  e.preventDefault();
+  hideLoginMessage();
+  const email = document.getElementById('loginEmail').value.trim();
+  if(!email){ showLoginMessage('Digite seu email no campo acima, depois toca aqui de novo.', true); return; }
+  try{
+    await auth.sendPasswordResetEmail(email);
+    showLoginMessage('Email de redefinição enviado! Confere sua caixa de entrada.', false);
+  }catch(e){
+    showLoginMessage(translateAuthError(e.code), true);
+  }
+};
+
+document.getElementById('logoutBtn').onclick = async ()=>{
+  await auth.signOut();
+};
+
+auth.onAuthStateChanged(async (user)=>{
+  document.getElementById('authLoading').style.display = 'none';
+  if(user){
+    currentUser = user;
+    document.getElementById('loginScreen').classList.remove('visible');
+    document.getElementById('appMain').style.display = '';
+    document.getElementById('userEmailLabel').textContent = user.email;
+    await loadAppDataFromFirestore(user.uid);
+    init();
+  } else {
+    currentUser = null;
+    appData = {};
+    firestoreDocRef = null;
+    document.getElementById('appMain').style.display = 'none';
+    document.getElementById('loginScreen').classList.add('visible');
+    const btn = document.getElementById('loginSubmitBtn');
+    btn.disabled = false;
+    btn.textContent = isSignupMode ? 'Criar conta' : 'Entrar';
+  }
+});
 </script>
 </body>
 </html>
