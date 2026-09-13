@@ -258,6 +258,57 @@ body{
   background:var(--surface-2);color:var(--text-dim);border:1px solid var(--line);
   border-radius:20px;padding:7px 14px;font-size:12px;font-family:'Work Sans',sans-serif;cursor:pointer;
 }
+
+/* Onboarding wizard */
+#onboardingScreen{
+  position:fixed;inset:0;background:var(--bg);z-index:80;
+  display:none;flex-direction:column;
+  padding:calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));
+}
+#onboardingScreen.visible{display:flex;}
+.ob-progress{display:flex;gap:5px;margin-bottom:28px;flex-shrink:0;}
+.ob-progress-seg{flex:1;height:4px;border-radius:2px;background:var(--surface-2);}
+.ob-progress-seg.done{background:var(--ember);}
+.ob-body{flex:1;overflow-y:auto;max-width:440px;margin:0 auto;width:100%;}
+.ob-step{display:none;}
+.ob-step.active{display:block;animation:obfade .25s ease;}
+@keyframes obfade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.ob-eyebrow{font-size:12px;color:var(--ember);text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px;}
+.ob-title{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:30px;margin:0 0 6px;line-height:1.05;}
+.ob-sub{color:var(--text-dim);font-size:14px;margin:0 0 24px;line-height:1.5;}
+.ob-option{
+  background:var(--surface);border:1.5px solid var(--line);border-radius:14px;
+  padding:16px;margin-bottom:10px;cursor:pointer;
+}
+.ob-option.selected{border-color:var(--ember);background:var(--ember-dim);}
+.ob-option .ob-opt-title{font-size:15px;font-weight:600;margin:0 0 3px;}
+.ob-option.selected .ob-opt-title{color:var(--ember);}
+.ob-option .ob-opt-desc{font-size:12.5px;color:var(--text-dim);margin:0;}
+.ob-input-row{margin-bottom:16px;}
+.ob-input-row label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;}
+.ob-input-row input{
+  width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:14px;font-size:16px;font-family:'Work Sans',sans-serif;
+}
+.ob-sex-toggle{display:flex;gap:8px;margin-bottom:16px;}
+.ob-sex-toggle button{
+  flex:1;background:var(--surface);border:1.5px solid var(--line);color:var(--text-dim);
+  border-radius:10px;padding:14px;font-size:14px;font-family:'Work Sans',sans-serif;cursor:pointer;
+}
+.ob-sex-toggle button.selected{border-color:var(--ember);background:var(--ember-dim);color:var(--ember);}
+.ob-nav{display:flex;gap:10px;max-width:440px;margin:16px auto 0;width:100%;flex-shrink:0;}
+.ob-btn-back{
+  background:var(--surface-2);color:var(--text-dim);border:1px solid var(--line);
+  border-radius:10px;padding:14px 18px;font-size:14px;font-family:'Work Sans',sans-serif;cursor:pointer;
+}
+.ob-btn-next{
+  flex:1;background:var(--ember);color:#1A0D08;border:none;border-radius:10px;
+  padding:14px;font-weight:600;font-size:15px;font-family:'Work Sans',sans-serif;cursor:pointer;
+}
+.ob-btn-next:disabled{opacity:0.4;}
+.ob-summary-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px;}
+.ob-summary-card .s-lbl{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 2px;}
+.ob-summary-card .s-val{font-size:15px;font-weight:600;margin:0;}
 </style>
 </head>
 <body>
@@ -280,6 +331,113 @@ body{
     <button class="login-btn" id="loginSubmitBtn">Entrar</button>
     <p class="login-switch"><span id="loginSwitchText">Não tem conta?</span> <a href="#" id="loginSwitchLink">Criar conta</a></p>
     <p class="login-forgot"><a href="#" id="forgotPasswordLink">Esqueci minha senha</a></p>
+  </div>
+</div>
+
+<div id="onboardingScreen">
+  <div class="ob-progress" id="obProgress"></div>
+  <div class="ob-body" id="obBody">
+
+    <div class="ob-step" data-step="nome">
+      <p class="ob-eyebrow">Vamos começar</p>
+      <p class="ob-title">Como você se chama?</p>
+      <p class="ob-sub">Pra gente personalizar sua experiência.</p>
+      <div class="ob-input-row">
+        <label>Seu nome</label>
+        <input type="text" id="obNome" autocomplete="given-name">
+      </div>
+    </div>
+
+    <div class="ob-step" data-step="objetivo">
+      <p class="ob-eyebrow">Objetivo</p>
+      <p class="ob-title">Qual é o seu foco principal?</p>
+      <p class="ob-sub">Isso define todo o estilo do seu treino.</p>
+      <div class="ob-options" data-field="objetivo">
+        <div class="ob-option" data-value="emagrecimento"><p class="ob-opt-title">Emagrecer e definir</p><p class="ob-opt-desc">Perder gordura, aparecer definição</p></div>
+        <div class="ob-option" data-value="hipertrofia"><p class="ob-opt-title">Ganhar massa muscular</p><p class="ob-opt-desc">Foco em crescer, volume e força</p></div>
+        <div class="ob-option" data-value="recomposicao"><p class="ob-opt-title">Perder gordura e ganhar músculo</p><p class="ob-opt-desc">Os dois ao mesmo tempo, com calma</p></div>
+        <div class="ob-option" data-value="forca"><p class="ob-opt-title">Força e performance</p><p class="ob-opt-desc">Levantar mais peso, evoluir nos números</p></div>
+        <div class="ob-option" data-value="saude"><p class="ob-opt-title">Saúde e condicionamento geral</p><p class="ob-opt-desc">Se manter ativo, sem exagero</p></div>
+      </div>
+    </div>
+
+    <div class="ob-step" data-step="nivel">
+      <p class="ob-eyebrow">Experiência</p>
+      <p class="ob-title">Qual seu nível hoje?</p>
+      <p class="ob-sub">Sem vergonha — isso só ajusta a dificuldade certa pra você.</p>
+      <div class="ob-options" data-field="nivel">
+        <div class="ob-option" data-value="iniciante"><p class="ob-opt-title">Iniciante</p><p class="ob-opt-desc">Pouca ou nenhuma experiência com treino</p></div>
+        <div class="ob-option" data-value="intermediario"><p class="ob-opt-title">Intermediário</p><p class="ob-opt-desc">Já treina ou já treinou com alguma consistência</p></div>
+        <div class="ob-option" data-value="avancado"><p class="ob-opt-title">Avançado</p><p class="ob-opt-desc">Boa técnica, confortável com pesos livres</p></div>
+      </div>
+    </div>
+
+    <div class="ob-step" data-step="local">
+      <p class="ob-eyebrow">Estrutura</p>
+      <p class="ob-title">Onde você vai treinar?</p>
+      <p class="ob-sub">Ajusta os equipamentos disponíveis no seu treino.</p>
+      <div class="ob-options" data-field="local">
+        <div class="ob-option" data-value="academia"><p class="ob-opt-title">Academia completa</p><p class="ob-opt-desc">Máquinas, barras, halteres, tudo liberado</p></div>
+        <div class="ob-option" data-value="casa-equip"><p class="ob-opt-title">Casa, com equipamento</p><p class="ob-opt-desc">Halteres, elásticos ou similares</p></div>
+        <div class="ob-option" data-value="casa-livre"><p class="ob-opt-title">Casa, sem equipamento</p><p class="ob-opt-desc">Só peso corporal</p></div>
+      </div>
+    </div>
+
+    <div class="ob-step" data-step="dias">
+      <p class="ob-eyebrow">Rotina</p>
+      <p class="ob-title">Quantos dias por semana?</p>
+      <p class="ob-sub">Melhor um número realista do que uma meta que você não vai cumprir.</p>
+      <div class="ob-options" data-field="diasSemana">
+        <div class="ob-option" data-value="baixo"><p class="ob-opt-title">2 a 3 dias</p><p class="ob-opt-desc">Treino corpo inteiro, direto ao ponto</p></div>
+        <div class="ob-option" data-value="medio"><p class="ob-opt-title">4 a 5 dias</p><p class="ob-opt-desc">Um grupo muscular por dia</p></div>
+        <div class="ob-option" data-value="alto"><p class="ob-opt-title">6 a 7 dias</p><p class="ob-opt-desc">Alta frequência, cada grupo 2x por semana</p></div>
+      </div>
+    </div>
+
+    <div class="ob-step" data-step="restricoes">
+      <p class="ob-eyebrow">Cuidados</p>
+      <p class="ob-title">Alguma restrição ou dor?</p>
+      <p class="ob-sub">Pode marcar mais de uma, ou pular se não tiver nenhuma.</p>
+      <div class="ob-options" data-field="restricoes" data-multi="true">
+        <div class="ob-option" data-value="ombro"><p class="ob-opt-title">Ombro</p></div>
+        <div class="ob-option" data-value="joelho"><p class="ob-opt-title">Joelho</p></div>
+        <div class="ob-option" data-value="lombar"><p class="ob-opt-title">Lombar</p></div>
+      </div>
+    </div>
+
+    <div class="ob-step" data-step="bio">
+      <p class="ob-eyebrow">Últimos dados</p>
+      <p class="ob-title">Uns números rápidos</p>
+      <p class="ob-sub">Uso isso só pra calcular suas metas de calorias e proteína certinhas.</p>
+      <div class="ob-sex-toggle" data-field="sexo">
+        <button data-value="M">Masculino</button>
+        <button data-value="F">Feminino</button>
+      </div>
+      <div class="ob-input-row">
+        <label>Idade</label>
+        <input type="number" inputmode="numeric" id="obIdade">
+      </div>
+      <div class="ob-input-row">
+        <label>Altura (cm)</label>
+        <input type="number" inputmode="numeric" id="obAltura">
+      </div>
+      <div class="ob-input-row">
+        <label>Peso atual (kg)</label>
+        <input type="number" step="0.1" inputmode="decimal" id="obPeso">
+      </div>
+    </div>
+
+    <div class="ob-step" data-step="resumo">
+      <p class="ob-eyebrow">Tudo pronto</p>
+      <p class="ob-title" id="obResumoTitle">Perfeito!</p>
+      <p class="ob-sub">Confere se está tudo certo antes de gerar seu programa.</p>
+      <div id="obSummaryCards"></div>
+    </div>
+
+  </div>
+  <div class="ob-nav">
+    <button class="ob-btn-back" id="obBackBtn">Voltar</button>
+    <button class="ob-btn-next" id="obNextBtn">Continuar</button>
   </div>
 </div>
 
@@ -325,7 +483,10 @@ body{
 <section class="tab" id="tab-progresso">
   <div class="logout-row">
     <p class="water-target" id="userEmailLabel" style="margin:0;"></p>
-    <button class="logout-btn" id="logoutBtn">Sair</button>
+    <div style="display:flex;gap:8px;">
+      <button class="logout-btn" id="exportBtn">Exportar dados</button>
+      <button class="logout-btn" id="logoutBtn">Sair</button>
+    </div>
   </div>
   <div class="section-lbl">Seu programa</div>
   <div class="card" id="phaseCard" style="margin-bottom:20px;"></div>
@@ -353,12 +514,13 @@ body{
 
 <section class="tab" id="tab-nutricao">
   <div class="section-lbl">Suas metas diárias</div>
-  <div class="metric-grid">
-    <div class="metric"><p class="m-lbl">Calorias</p><p class="m-val">2.500 kcal</p></div>
-    <div class="metric"><p class="m-lbl">Proteína</p><p class="m-val ember">190 g</p></div>
-    <div class="metric"><p class="m-lbl">Carboidratos</p><p class="m-val">260 g</p></div>
-    <div class="metric"><p class="m-lbl">Gordura</p><p class="m-val">70 g</p></div>
+  <div class="metric-grid" id="macroGrid">
+    <div class="metric"><p class="m-lbl">Calorias</p><p class="m-val">—</p></div>
+    <div class="metric"><p class="m-lbl">Proteína</p><p class="m-val ember">—</p></div>
+    <div class="metric"><p class="m-lbl">Carboidratos</p><p class="m-val">—</p></div>
+    <div class="metric"><p class="m-lbl">Gordura</p><p class="m-val">—</p></div>
   </div>
+  <p class="water-target" id="macroNote" style="margin:-6px 0 16px;">Calculando...</p>
 
   <div class="section-lbl">Água de hoje</div>
   <div class="card" id="waterCard"></div>
@@ -403,134 +565,133 @@ body{
 
 <script>
 const WEEK_FASE1 = [
-  { day:'Segunda', label:'Treino A', focus:'Costas + bíceps', type:'forca', tag:'COSTAS · BÍCEPS',
-    finisher:{desc:'8-10 min de caminhada leve na esteira, ritmo tranquilo.'},
-    exercises:[
-      {name:'Remada T-bar', sets:4, reps:'10', rest:90},
-      {name:'Remada unilateral com halter (serrote)', sets:3, reps:'12 cada lado', rest:75},
-      {name:'Puxada aberta (pulley)', sets:4, reps:'12', rest:75},
-      {name:'Hiperextensão lombar', sets:3, reps:'15', rest:60},
-      {name:'Rosca na polia', sets:3, reps:'12', rest:15, technique:'BI-SET'},
-      {name:'Rosca alternada com halteres', sets:3, reps:'12', rest:60, technique:'BI-SET', note:'Direto após a rosca na polia, sem descanso entre os dois.'},
-    ]},
-  { day:'Terça', label:'Treino B', focus:'Peito + ombro + tríceps', type:'forca', tag:'PEITO · OMBRO',
+  { day:'Segunda', label:'Push A', focus:'Peito + ombro + tríceps (pesado)', type:'forca', tag:'PUSH · PEITO',
     shoulderWarn:true,
-    finisher:{desc:'12-15 min de bike ou caminhada inclinada, ritmo moderado.'},
     exercises:[
-      {name:'Supino inclinado (máquina ou halteres)', sets:4, reps:'12', rest:90},
-      {name:'Supino reto (máquina)', sets:3, reps:'12', rest:90},
-      {name:'Voador (peck deck)', sets:3, reps:'12', rest:60},
-      {name:'Elevação lateral', sets:3, reps:'15', rest:45, note:'Carga leve. Se o ombro esquerdo incomodar, reduza a amplitude.'},
-      {name:'Tríceps corda', sets:3, reps:'12', rest:15, technique:'BI-SET'},
-      {name:'Tríceps testa com barra (skull crusher)', sets:3, reps:'10', rest:60, technique:'BI-SET', note:'Direto após o tríceps corda.'},
+      {name:'Supino reto (máquina)', sets:5, reps:'6-8', rest:150, note:'Carga alta, controle na descida. Ombro esquerdo primeiro: aquece bem antes de ir pesado.'},
+      {name:'Supino inclinado com halteres', sets:4, reps:'8', rest:120},
+      {name:'Desenvolvimento (máquina)', sets:4, reps:'8', rest:120, note:'Se o ombro esquerdo incomodar, reduza a amplitude no topo.'},
+      {name:'Elevação lateral com halteres', sets:4, reps:'10', rest:60},
+      {name:'Tríceps testa com halter', sets:4, reps:'8', rest:90},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:60},
+      {name:'Rosca direta com halteres', sets:3, reps:'12', rest:60},
+      {name:'Elevação de pernas', sets:3, reps:'15', rest:45},
     ]},
-  { day:'Quarta', label:'Treino C', focus:'Pernas (ênfase posterior)', type:'forca', tag:'PERNA · POSTERIOR',
-    finisher:{desc:'8-10 min de caminhada leve. Pernas já exigidas, mantenha tranquilo.'},
+  { day:'Terça', label:'Pull A', focus:'Costas + bíceps (pesado)', type:'forca', tag:'PULL · COSTAS',
     exercises:[
-      {name:'Hack (ou agachamento na máquina)', sets:4, reps:'10', rest:90},
-      {name:'Leg press 45°', sets:3, reps:'12', rest:90},
-      {name:'Cadeira extensora', sets:3, reps:'15', rest:60},
-      {name:'Cadeira flexora', sets:3, reps:'15', rest:60},
-      {name:'Mesa flexora', sets:3, reps:'15', rest:60},
-      {name:'Stiff com halteres', sets:3, reps:'12', rest:90},
-      {name:'Panturrilha em pé', sets:4, reps:'15', rest:45},
+      {name:'Puxada aberta (pulley)', sets:5, reps:'6-8', rest:150, note:'Carga alta, puxe até o peito, controle na volta.'},
+      {name:'Remada baixa (cabo)', sets:4, reps:'8', rest:120},
+      {name:'Remada unilateral com halter', sets:4, reps:'10 cada lado', rest:90},
+      {name:'Hiperextensão lombar com peso', sets:3, reps:'12', rest:60},
+      {name:'Rosca direta com halteres', sets:4, reps:'8', rest:90},
+      {name:'Rosca martelo', sets:3, reps:'12', rest:60},
     ]},
-  { day:'Quinta', label:'Cardio', focus:'Intervalado + abdômen', type:'cardio',
-    cardio:{desc:'25-30 min na esteira inclinada (8-12%), ritmo em que você ainda consegue falar em frases curtas.'},
+  { day:'Quarta', label:'Legs A', focus:'Pernas (quadríceps, pesado)', type:'forca', tag:'PERNA · QUAD',
     exercises:[
-      {name:'Abdominal infra (pernas ou joelhos)', sets:3, reps:'15', rest:45},
-      {name:'Prancha lateral', sets:2, reps:'30s cada lado', rest:45},
+      {name:'Leg press 45°', sets:5, reps:'8', rest:150, note:'Carga bem pesada, amplitude completa controlada.'},
+      {name:'Hack (ou agachamento na máquina)', sets:4, reps:'8', rest:120},
+      {name:'Cadeira extensora', sets:3, reps:'15', rest:90, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Panturrilha sentado (máquina)', sets:5, reps:'12', rest:60},
+      {name:'Elevação de pernas', sets:4, reps:'12', rest:60},
       {name:'Abdominal bicicleta', sets:3, reps:'20', rest:45},
     ]},
-  { day:'Sexta', label:'Treino D', focus:'Superiores completo', type:'forca', tag:'SUPERIORES',
+  { day:'Quinta', label:'Push B', focus:'Peito + ombro + tríceps (variação)', type:'forca', tag:'PUSH · OMBRO',
     shoulderWarn:true,
-    finisher:{desc:'10 min de caminhada leve pra fechar a semana de superiores.'},
+    finisher:{desc:'8-10 min de caminhada leve. Semana pesada, mantenha tranquilo.'},
     exercises:[
-      {name:'Supino reto (máquina ou halteres)', sets:3, reps:'12', rest:75},
-      {name:'Crucifixo (voador)', sets:3, reps:'12', rest:60},
-      {name:'Puxada frente', sets:3, reps:'12', rest:75},
-      {name:'Remada baixa (cabo)', sets:3, reps:'12', rest:75},
-      {name:'Desenvolvimento com halteres', sets:3, reps:'12', rest:75, note:'Carga leve/moderada, atenção ao ombro esquerdo.'},
-      {name:'Elevação lateral', sets:3, reps:'15', rest:45},
-      {name:'Rosca direta', sets:3, reps:'12', rest:60},
-      {name:'Tríceps corda', sets:3, reps:'12', rest:60},
+      {name:'Supino inclinado (máquina ou halteres)', sets:5, reps:'6-8', rest:150},
+      {name:'Crucifixo (voador)', sets:4, reps:'10', rest:90},
+      {name:'Desenvolvimento com halteres sentado', sets:4, reps:'8', rest:120, note:'Carga moderada/pesada, atenção ao ombro esquerdo.'},
+      {name:'Elevação lateral no cabo', sets:3, reps:'12', rest:60},
+      {name:'Tríceps francês com halter', sets:4, reps:'10', rest:90},
+      {name:'Tríceps banco (mergulho)', sets:3, reps:'12', rest:60},
+      {name:'Rosca martelo', sets:3, reps:'12', rest:60},
+      {name:'Abdominal na polia (cable crunch)', sets:3, reps:'15', rest:60},
     ]},
-  { day:'Sábado', label:'Treino E', focus:'Pernas (ênfase glúteo)', type:'forca', tag:'PERNA · GLÚTEO',
-    finisher:{desc:'8-10 min de caminhada leve. Pernas bem exigidas na semana, mantenha bem tranquilo.'},
+  { day:'Sexta', label:'Pull B', focus:'Costas + bíceps (variação)', type:'forca', tag:'PULL · BÍCEPS',
+    finisher:{desc:'8-10 min de caminhada leve pra fechar bem a semana.'},
     exercises:[
-      {name:'Agachamento sumô no smith', sets:4, reps:'12', rest:90, note:'Pés bem abertos, pontas viradas pra fora — ênfase em glúteo e adutor.'},
-      {name:'Hack (ou afundo)', sets:3, reps:'12', rest:90},
-      {name:'Leg press (pés altos, foco glúteo)', sets:3, reps:'12', rest:90},
-      {name:'Cadeira flexora', sets:3, reps:'15', rest:60},
-      {name:'Mesa flexora', sets:3, reps:'15', rest:60},
-      {name:'Panturrilha sentado', sets:4, reps:'15', rest:45},
+      {name:'Remada T-bar', sets:5, reps:'6-8', rest:150},
+      {name:'Puxada frente pegada supinada', sets:4, reps:'8', rest:120},
+      {name:'Remada baixa pegada fechada', sets:4, reps:'10', rest:90},
+      {name:'Face pull na polia', sets:3, reps:'15', rest:60, note:'Ótimo pra saúde do ombro — puxe até a altura do rosto, cotovelos altos.'},
+      {name:'Rosca scott (máquina ou barra W)', sets:4, reps:'10', rest:75},
+      {name:'Rosca na polia', sets:3, reps:'12', rest:60},
+    ]},
+  { day:'Sábado', label:'Legs B', focus:'Pernas (posterior/glúteo, pesado)', type:'forca', tag:'PERNA · POSTERIOR',
+    exercises:[
+      {name:'Stiff com halteres', sets:5, reps:'8', rest:150, note:'Controle a descida, sinta o posterior de coxa, não arredonde a lombar.'},
+      {name:'Cadeira flexora', sets:4, reps:'12', rest:90},
+      {name:'Mesa flexora', sets:3, reps:'12', rest:90},
+      {name:'Elevação pélvica com barra (hip thrust)', sets:4, reps:'10', rest:90},
+      {name:'Panturrilha em pé', sets:4, reps:'15', rest:45},
+      {name:'Prancha abdominal', sets:3, reps:'45s', rest:60},
     ]},
   { day:'Domingo', label:'Descanso', focus:'Recuperação total', type:'descanso', exercises:[]},
 ];
 
 const WEEK_FASE2 = [
-  { day:'Segunda', label:'Treino A', focus:'Costas + bíceps', type:'forca', tag:'COSTAS · BÍCEPS',
-    finisher:{desc:'8-10 min de caminhada leve na esteira, ritmo tranquilo.'},
-    exercises:[
-      {name:'Remada T-bar', sets:4, reps:'8-10', rest:90},
-      {name:'Barra fixa (ou puxada aberta)', sets:4, reps:'8-10', rest:90, note:'Se ainda não faz barra fixa limpa, use a puxada aberta na polia com carga que permita boa execução.'},
-      {name:'Remada unilateral com halter (serrote)', sets:3, reps:'12 cada lado', rest:75},
-      {name:'Hiperextensão lombar com peso', sets:3, reps:'15', rest:60},
-      {name:'Rosca na polia', sets:3, reps:'12', rest:15, technique:'BI-SET'},
-      {name:'Rosca martelo', sets:3, reps:'12', rest:60, technique:'BI-SET', note:'Direto após a rosca na polia, sem descanso entre os dois.'},
-    ]},
-  { day:'Terça', label:'Treino B', focus:'Peito + ombro + tríceps', type:'forca', tag:'PEITO · OMBRO',
+  { day:'Segunda', label:'Push A', focus:'Peito + ombro + tríceps (pesado)', type:'forca', tag:'PUSH · PEITO',
     shoulderWarn:true,
-    finisher:{desc:'12-15 min de bike ou caminhada inclinada, ritmo moderado.'},
     exercises:[
-      {name:'Supino inclinado com halteres', sets:4, reps:'8-10', rest:100},
-      {name:'Supino reto com barra', sets:4, reps:'8-10', rest:120, note:'Ombro esquerdo primeiro: teste com barra vazia antes de carregar.'},
-      {name:'Voador (crossover ou peck deck)', sets:3, reps:'12', rest:15, technique:'BI-SET'},
-      {name:'Flexão de braço até a falha', sets:3, reps:'até falhar', rest:75, technique:'BI-SET', note:'Direto após o voador, sem descanso entre os dois.'},
-      {name:'Elevação lateral leve', sets:3, reps:'15', rest:45},
-      {name:'Tríceps corda', sets:3, reps:'12', rest:15, technique:'DROP SET'},
-      {name:'Tríceps testa com barra (skull crusher)', sets:3, reps:'10', rest:60, technique:'BI-SET', note:'Direto após o tríceps corda. Na última série do tríceps corda, ao falhar, reduza a carga e continue por mais 8-10 reps antes de partir pro testa.'},
+      {name:'Supino reto com barra', sets:5, reps:'5-6', rest:180, note:'Carga alta de verdade. Ombro esquerdo primeiro: aquece bem, teste com barra vazia antes de subir carga.'},
+      {name:'Supino inclinado com halteres', sets:4, reps:'8', rest:120},
+      {name:'Desenvolvimento com halteres sentado', sets:4, reps:'6-8', rest:150, note:'Carga pesada controlada. Se o ombro esquerdo incomodar, pare a amplitude antes do topo.'},
+      {name:'Elevação lateral com halteres', sets:4, reps:'10', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Tríceps testa com barra (skull crusher)', sets:4, reps:'8', rest:90},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:60},
+      {name:'Rosca direta com barra', sets:3, reps:'10', rest:60},
+      {name:'Elevação de pernas', sets:3, reps:'15', rest:45},
     ]},
-  { day:'Quarta', label:'Treino C', focus:'Pernas (ênfase posterior)', type:'forca', tag:'PERNA · POSTERIOR',
-    finisher:{desc:'8-10 min de caminhada leve. Pernas já exigidas, mantenha tranquilo.'},
+  { day:'Terça', label:'Pull A', focus:'Costas + bíceps (pesado)', type:'forca', tag:'PULL · COSTAS',
     exercises:[
-      {name:'Hack (ou agachamento livre)', sets:4, reps:'8-10', rest:120},
-      {name:'Leg press 45°', sets:3, reps:'12', rest:15, technique:'BI-SET'},
-      {name:'Cadeira extensora', sets:3, reps:'15', rest:90, technique:'BI-SET', note:'Faça direto após o leg press. Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps (drop set).'},
-      {name:'Cadeira flexora', sets:3, reps:'12', rest:60},
-      {name:'Mesa flexora', sets:3, reps:'12', rest:60},
-      {name:'Stiff com halteres', sets:4, reps:'10', rest:120, note:'Controle a descida, sinta o alongamento no posterior de coxa, não arredonde a lombar.'},
-      {name:'Panturrilha em pé', sets:4, reps:'15', rest:45},
+      {name:'Levantamento terra convencional', sets:5, reps:'5', rest:180, note:'O exercício mais pesado da semana. Prioridade total em técnica antes de subir carga.'},
+      {name:'Barra fixa (com peso se conseguir)', sets:4, reps:'6-8', rest:120, note:'Sem peso ainda? Use a puxada aberta na polia com carga bem pesada.'},
+      {name:'Remada curvada com barra', sets:4, reps:'8', rest:120},
+      {name:'Remada unilateral com halter pesado', sets:3, reps:'10 cada lado', rest:75},
+      {name:'Rosca direta com barra', sets:4, reps:'8', rest:90},
+      {name:'Rosca martelo', sets:3, reps:'12', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
     ]},
-  { day:'Quinta', label:'Cardio', focus:'Intervalado + abdômen', type:'cardio',
-    cardio:{desc:'Intervalado: 5 min de aquecimento leve + 8x (1 min forte / 1 min caminhada de recuperação) + 5 min de desaquecimento. Cerca de 25 min no total, na esteira ou ao ar livre.'},
+  { day:'Quarta', label:'Legs A', focus:'Pernas (quadríceps, pesado)', type:'forca', tag:'PERNA · QUAD',
     exercises:[
+      {name:'Agachamento livre com barra', sets:5, reps:'6', rest:180, note:'O rei dos exercícios de perna. Profundidade completa, core travado, sobe carga aos poucos.'},
+      {name:'Leg press 45°', sets:4, reps:'10', rest:120},
+      {name:'Cadeira extensora', sets:3, reps:'15', rest:90, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Panturrilha em pé', sets:5, reps:'12', rest:60},
+      {name:'Elevação de pernas na barra fixa', sets:4, reps:'12', rest:60},
+      {name:'Abdominal bicicleta', sets:3, reps:'20', rest:45},
+    ]},
+  { day:'Quinta', label:'Push B', focus:'Peito + ombro + tríceps (variação)', type:'forca', tag:'PUSH · OMBRO',
+    shoulderWarn:true,
+    finisher:{desc:'8-10 min de caminhada leve. Semana pesada, mantenha tranquilo.'},
+    exercises:[
+      {name:'Supino inclinado com barra', sets:5, reps:'5-6', rest:180},
+      {name:'Supino reto com halteres', sets:4, reps:'8', rest:120},
+      {name:'Desenvolvimento com halteres sentado', sets:4, reps:'8', rest:120, note:'Atenção ao ombro esquerdo, carga controlada.'},
+      {name:'Elevação lateral no cabo', sets:3, reps:'12', rest:15, technique:'DROP SET'},
+      {name:'Tríceps francês com halter', sets:4, reps:'10', rest:90},
+      {name:'Tríceps banco (mergulho, com peso se possível)', sets:3, reps:'12', rest:60},
+      {name:'Rosca martelo', sets:3, reps:'12', rest:60},
       {name:'Abdominal na polia (cable crunch)', sets:3, reps:'15', rest:60},
-      {name:'Prancha lateral com elevação de quadril', sets:2, reps:'12 cada lado', rest:45},
-      {name:'Roda abdominal (ab wheel)', sets:3, reps:'10', rest:60, note:'Se ainda não tem a roda, substitua por prancha longa de 45-60s.'},
     ]},
-  { day:'Sexta', label:'Treino D', focus:'Superiores completo', type:'forca', tag:'SUPERIORES',
-    shoulderWarn:true,
-    finisher:{desc:'10-12 min de caminhada leve/moderada pra fechar a semana de superiores.'},
+  { day:'Sexta', label:'Pull B', focus:'Costas + bíceps (variação)', type:'forca', tag:'PULL · BÍCEPS',
+    finisher:{desc:'8-10 min de caminhada leve pra fechar bem a semana.'},
     exercises:[
-      {name:'Supino com halteres', sets:3, reps:'10', rest:15, technique:'BI-SET'},
-      {name:'Crucifixo com halteres', sets:3, reps:'12', rest:75, technique:'BI-SET', note:'Direto após o supino, sem descanso entre os dois.'},
-      {name:'Remada unilateral com halter', sets:3, reps:'12 cada lado', rest:75},
-      {name:'Puxada frente (pulley)', sets:3, reps:'12', rest:75},
-      {name:'Desenvolvimento com halteres sentado', sets:3, reps:'12', rest:75, note:'Carga leve/moderada, atenção ao ombro esquerdo.'},
-      {name:'Elevação lateral leve', sets:3, reps:'15', rest:15, technique:'BI-SET'},
-      {name:'Rosca alternada com halteres', sets:3, reps:'12', rest:60, technique:'BI-SET', note:'Direto após a elevação lateral.'},
-      {name:'Tríceps francês com halter', sets:3, reps:'12', rest:60},
+      {name:'Remada T-bar', sets:5, reps:'6', rest:150},
+      {name:'Puxada aberta pegada larga', sets:4, reps:'8', rest:120},
+      {name:'Remada baixa pegada fechada', sets:4, reps:'10', rest:90},
+      {name:'Face pull na polia', sets:3, reps:'15', rest:60, note:'Ótimo pra saúde do ombro — puxe até a altura do rosto, cotovelos altos.'},
+      {name:'Rosca scott (barra W)', sets:4, reps:'10', rest:75},
+      {name:'Rosca 21', sets:1, reps:'7+7+7', rest:0, technique:'FINALIZADOR', note:'7 reps na metade inferior + 7 na metade superior + 7 na amplitude completa, numa série só.'},
     ]},
-  { day:'Sábado', label:'Treino E', focus:'Pernas (ênfase glúteo)', type:'forca', tag:'PERNA · GLÚTEO',
-    finisher:{desc:'8-10 min de caminhada leve. Pernas bem exigidas na semana, mantenha bem tranquilo.'},
+  { day:'Sábado', label:'Legs B', focus:'Pernas (posterior/glúteo, pesado)', type:'forca', tag:'PERNA · POSTERIOR',
     exercises:[
-      {name:'Agachamento búlgaro com halteres', sets:4, reps:'10 cada perna', rest:90, note:'Excelente pra glúteo e equilíbrio. Apoie o pé de trás num banco baixo, desça controlado.'},
-      {name:'Levantamento terra convencional (ou sumô)', sets:4, reps:'8', rest:150, note:'Priorize técnica sobre carga, especialmente nas primeiras semanas de volta.'},
-      {name:'Passada com halteres (afundo)', sets:3, reps:'12 cada perna', rest:75},
-      {name:'Cadeira flexora', sets:3, reps:'12', rest:60},
-      {name:'Mesa flexora', sets:3, reps:'12', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Levantamento terra romeno (RDL)', sets:5, reps:'8', rest:150, note:'Controle a descida, sinta o posterior de coxa, não arredonde a lombar.'},
+      {name:'Agachamento búlgaro com halteres', sets:4, reps:'10 cada perna', rest:90, note:'Excelente pra glúteo e equilíbrio. Apoie o pé de trás num banco baixo.'},
+      {name:'Mesa flexora', sets:3, reps:'12', rest:90, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Elevação pélvica com barra (hip thrust)', sets:4, reps:'10', rest:90},
       {name:'Panturrilha sentado', sets:4, reps:'15', rest:45},
+      {name:'Prancha abdominal com peso', sets:3, reps:'45s', rest:60},
     ]},
   { day:'Domingo', label:'Descanso', focus:'Recuperação total', type:'descanso', exercises:[]},
 ];
@@ -546,9 +707,253 @@ function todayISO(){ return dateISO(new Date()); }
 let _lastKnownDate = todayISO();
 
 let phase = 1;
-function activeWeek(){ return phase===1 ? WEEK_FASE1 : WEEK_FASE2; }
+let generatedProgram = null;
+function activeWeek(){
+  const src = generatedProgram || {fase1: WEEK_FASE1, fase2: WEEK_FASE2};
+  return phase===1 ? src.fase1 : src.fase2;
+}
 
 let checkinState = {exSets:{}, cardioDone:false, finisherDone:false};
+
+// ===================== MOTOR DE GERAÇÃO DE TREINO =====================
+// context: 0 = peso corporal (qualquer lugar), 1 = casa com equipamento (halteres/elásticos), 2 = academia completa
+// tier: 0 = iniciante, 1 = intermediário, 2 = avançado
+const EXDB = {
+  peito: [
+    {name:'Flexão de braço', context:0, tier:0, compound:true},
+    {name:'Flexão com pés elevados', context:0, tier:1, compound:true},
+    {name:'Supino com halteres', context:1, tier:0, compound:true},
+    {name:'Supino inclinado com halteres', context:1, tier:1, compound:true},
+    {name:'Crucifixo com halteres', context:1, tier:1, compound:false},
+    {name:'Supino reto (máquina ou halteres)', context:2, tier:0, compound:true},
+    {name:'Supino reto com barra', context:2, tier:1, compound:true},
+    {name:'Supino inclinado com barra', context:2, tier:2, compound:true},
+    {name:'Voador (peck deck)', context:2, tier:0, compound:false},
+    {name:'Crossover no cabo', context:2, tier:1, compound:false},
+  ],
+  costas: [
+    {name:'Remada unilateral com halter (serrote)', context:1, tier:0, compound:true},
+    {name:'Remada curvada com halteres', context:1, tier:1, compound:true},
+    {name:'Hiperextensão no solo (superman)', context:0, tier:0, compound:false},
+    {name:'Puxada aberta (pulley)', context:2, tier:0, compound:true},
+    {name:'Remada baixa (cabo)', context:2, tier:0, compound:true},
+    {name:'Remada T-bar', context:2, tier:1, compound:true},
+    {name:'Barra fixa (ou puxada aberta assistida)', context:2, tier:2, compound:true},
+    {name:'Levantamento terra romeno (RDL)', context:1, tier:1, compound:true},
+    {name:'Hiperextensão lombar (banco romano)', context:2, tier:1, compound:false},
+  ],
+  ombro: [
+    {name:'Elevação lateral com halteres', context:1, tier:0, compound:false},
+    {name:'Elevação frontal com halteres', context:1, tier:0, compound:false},
+    {name:'Desenvolvimento com halteres', context:1, tier:1, compound:true},
+    {name:'Desenvolvimento (máquina)', context:2, tier:0, compound:true},
+    {name:'Elevação lateral no cabo', context:2, tier:1, compound:false},
+    {name:'Desenvolvimento militar com barra', context:2, tier:2, compound:true},
+  ],
+  biceps: [
+    {name:'Rosca direta com halteres', context:1, tier:0, compound:false},
+    {name:'Rosca martelo', context:1, tier:0, compound:false},
+    {name:'Rosca alternada com halteres', context:1, tier:0, compound:false},
+    {name:'Rosca na polia', context:2, tier:0, compound:false},
+    {name:'Rosca direta na barra', context:2, tier:1, compound:false},
+    {name:'Rosca scott', context:2, tier:1, compound:false},
+    {name:'Rosca 21', context:1, tier:2, compound:false},
+  ],
+  triceps: [
+    {name:'Tríceps banco (mergulho)', context:0, tier:0, compound:true},
+    {name:'Tríceps francês com halter', context:1, tier:0, compound:false},
+    {name:'Tríceps coice com halter', context:1, tier:0, compound:false},
+    {name:'Tríceps corda (polia)', context:2, tier:0, compound:false},
+    {name:'Tríceps testa com barra', context:2, tier:1, compound:false},
+  ],
+  quad: [
+    {name:'Agachamento livre (peso corporal)', context:0, tier:0, compound:true},
+    {name:'Agachamento com halteres (goblet)', context:1, tier:0, compound:true},
+    {name:'Afundo com halteres', context:1, tier:0, compound:true},
+    {name:'Agachamento búlgaro', context:1, tier:1, compound:true},
+    {name:'Leg press 45°', context:2, tier:0, compound:true},
+    {name:'Cadeira extensora', context:2, tier:0, compound:false},
+    {name:'Agachamento livre com barra', context:2, tier:1, compound:true},
+    {name:'Hack (ou agachamento na máquina)', context:2, tier:1, compound:true},
+  ],
+  posterior: [
+    {name:'Stiff com halteres', context:1, tier:0, compound:true},
+    {name:'Elevação pélvica no solo', context:0, tier:0, compound:true},
+    {name:'Elevação pélvica com halter', context:1, tier:0, compound:true},
+    {name:'Cadeira flexora', context:2, tier:0, compound:false},
+    {name:'Mesa flexora', context:2, tier:0, compound:false},
+    {name:'Levantamento terra romeno (RDL)', context:1, tier:1, compound:true},
+    {name:'Elevação pélvica com barra (hip thrust)', context:2, tier:1, compound:true},
+    {name:'Levantamento terra convencional', context:2, tier:2, compound:true},
+  ],
+  panturrilha: [
+    {name:'Panturrilha em pé (peso corporal)', context:0, tier:0, compound:false},
+    {name:'Panturrilha em pé com halteres', context:1, tier:0, compound:false},
+    {name:'Panturrilha sentado (máquina)', context:2, tier:0, compound:false},
+    {name:'Panturrilha no leg press', context:2, tier:1, compound:false},
+  ],
+  abdomen: [
+    {name:'Prancha abdominal', context:0, tier:0, compound:false},
+    {name:'Abdominal bicicleta', context:0, tier:0, compound:false},
+    {name:'Prancha lateral', context:0, tier:0, compound:false},
+    {name:'Elevação de pernas', context:0, tier:1, compound:false},
+    {name:'Abdominal na polia (cable crunch)', context:2, tier:1, compound:false},
+    {name:'Roda abdominal (ab wheel)', context:1, tier:2, compound:false},
+  ],
+};
+
+const RESTRICTION_EXCLUDE = {
+  joelho: ['Agachamento livre (peso corporal)','Agachamento livre com barra','Hack (ou agachamento na máquina)','Agachamento búlgaro','Afundo com halteres'],
+  lombar: ['Levantamento terra convencional','Levantamento terra romeno (RDL)','Stiff com halteres','Remada curvada com halteres'],
+};
+
+function objetivoScheme(objetivo, compound){
+  const table = {
+    emagrecimento: { c:{sets:3,reps:'12',rest:60}, i:{sets:3,reps:'15',rest:45} },
+    hipertrofia:   { c:{sets:4,reps:'8-10',rest:90}, i:{sets:3,reps:'10-12',rest:60} },
+    recomposicao:  { c:{sets:4,reps:'10',rest:75}, i:{sets:3,reps:'12',rest:55} },
+    forca:         { c:{sets:4,reps:'5-6',rest:120}, i:{sets:3,reps:'10',rest:60} },
+    saude:         { c:{sets:3,reps:'12',rest:60}, i:{sets:2,reps:'15',rest:45} },
+  };
+  const t = table[objetivo] || table.saude;
+  return compound ? t.c : t.i;
+}
+
+function pickExercises(group, count, userCtx, userTier, usedSet, restricoes){
+  const excluded = (restricoes||[]).flatMap(r => RESTRICTION_EXCLUDE[r] || []);
+  let pool = EXDB[group].filter(ex =>
+    ex.context <= userCtx && ex.tier <= userTier && !excluded.includes(ex.name)
+  );
+  if(pool.length < count){
+    pool = EXDB[group].filter(ex => ex.context <= userCtx && !excluded.includes(ex.name));
+  }
+  const ordered = [...pool].sort((a,b) => {
+    const usedA = usedSet.has(a.name) ? 1 : 0;
+    const usedB = usedSet.has(b.name) ? 1 : 0;
+    if(usedA !== usedB) return usedA - usedB; // frescos primeiro
+    const scoreA = a.context*2 + a.tier + (a.compound?0.5:0);
+    const scoreB = b.context*2 + b.tier + (b.compound?0.5:0);
+    return scoreB - scoreA; // aproveita melhor o equipamento/nível disponível
+  });
+  const picked = ordered.slice(0, count);
+  picked.forEach(ex => usedSet.add(ex.name));
+  return picked.map(ex => {
+    const sc = objetivoScheme(objetivo_GLOBAL, ex.compound);
+    return { name: ex.name, sets: sc.sets, reps: sc.reps, rest: sc.rest };
+  });
+}
+
+let objetivo_GLOBAL = 'saude'; // usado internamente durante uma geração
+
+function buildDay(day, label, focus, tag, muscleList, opts, ctx){
+  const { userCtx, userTier, restricoes, objetivo, usedSet, addFinisher } = ctx;
+  objetivo_GLOBAL = objetivo;
+  const exercises = [];
+  muscleList.forEach(({group, count}) => {
+    exercises.push(...pickExercises(group, count, userCtx, userTier, usedSet, restricoes));
+  });
+  if(opts.shoulderNote && restricoes.includes('ombro')){
+    const target = exercises.find(e => /Desenvolvimento|Elevação lateral|Elevação frontal/.test(e.name));
+    if(target) target.note = 'Ombro sensível — reduza a amplitude ou a carga se sentir desconforto.';
+  }
+  const dayObj = { day, label, focus, type:'forca', tag, exercises };
+  if(opts.shoulderNote) dayObj.shoulderWarn = true;
+  if(addFinisher){
+    dayObj.finisher = { desc: '8-12 min de caminhada leve/moderada na esteira ou ao ar livre.' };
+  }
+  return dayObj;
+}
+
+function buildCardioDay(day){
+  return {
+    day, label:'Cardio', focus:'Intervalado + abdômen', type:'cardio',
+    cardio:{ desc:'25-30 min de caminhada inclinada ou intervalado leve (1 min forte / 1 min recuperação), no ritmo que fizer sentido pra você.' },
+    exercises: pickExercises('abdomen', 3, 2, 2, new Set(), []),
+  };
+}
+function buildRestDay(day){
+  return { day, label:'Descanso', focus:'Recuperação total', type:'descanso', exercises:[] };
+}
+
+function upgradeDayForFase2(day, userTier){
+  // Fase 2: sobe o tier de dificuldade e adiciona técnicas de intensidade (bi-set / drop set)
+  if(day.type !== 'forca') return day;
+  const upgraded = JSON.parse(JSON.stringify(day));
+  const isolations = upgraded.exercises.filter(e => true);
+  if(isolations.length >= 2){
+    isolations[isolations.length-2].technique = 'BI-SET';
+    isolations[isolations.length-2].rest = 15;
+    isolations[isolations.length-1].technique = 'BI-SET';
+    isolations[isolations.length-1].note = ((isolations[isolations.length-1].note||'') + ' Direto após o exercício anterior, sem descanso entre os dois.').trim();
+  }
+  return upgraded;
+}
+
+function generateProgram(profile){
+  const ctxMap = { 'casa-livre':0, 'casa-equip':1, 'academia':2 };
+  const tierMap = { iniciante:0, intermediario:1, avancado:2 };
+  const userCtx = ctxMap[profile.local] ?? 2;
+  const userTier = tierMap[profile.nivel] ?? 0;
+  const restricoes = profile.restricoes || [];
+  const addFinisher = ['emagrecimento','recomposicao','saude'].includes(profile.objetivo);
+  const usedSet = new Set();
+  const ctx = { userCtx, userTier, restricoes, objetivo:profile.objetivo, usedSet, addFinisher };
+
+  let fase1;
+  if(profile.diasSemana === 'baixo'){
+    fase1 = [
+      buildDay('Segunda','Treino A','Corpo completo','FULL BODY',
+        [{group:'quad',count:1},{group:'costas',count:1},{group:'peito',count:1},{group:'ombro',count:1},{group:'abdomen',count:1}],
+        {shoulderNote:true}, ctx),
+      buildRestDay('Terça'),
+      buildDay('Quarta','Treino B','Corpo completo','FULL BODY',
+        [{group:'posterior',count:1},{group:'peito',count:1},{group:'costas',count:1},{group:'biceps',count:1},{group:'triceps',count:1}],
+        {shoulderNote:false}, ctx),
+      buildRestDay('Quinta'),
+      buildDay('Sexta','Treino C','Corpo completo','FULL BODY',
+        [{group:'quad',count:1},{group:'ombro',count:1},{group:'costas',count:1},{group:'biceps',count:1},{group:'panturrilha',count:1}],
+        {shoulderNote:true}, ctx),
+      buildRestDay('Sábado'),
+      buildRestDay('Domingo'),
+    ];
+  } else if(profile.diasSemana === 'medio'){
+    fase1 = [
+      buildDay('Segunda','Treino A','Peito + tríceps','PEITO · TRÍCEPS',
+        [{group:'peito',count:3},{group:'triceps',count:2}], {shoulderNote:true}, ctx),
+      buildDay('Terça','Treino B','Costas + bíceps','COSTAS · BÍCEPS',
+        [{group:'costas',count:3},{group:'biceps',count:2}], {shoulderNote:false}, ctx),
+      buildDay('Quarta','Treino C','Pernas (quadríceps)','PERNA · QUAD',
+        [{group:'quad',count:3},{group:'panturrilha',count:1},{group:'abdomen',count:1}], {shoulderNote:false}, ctx),
+      buildDay('Quinta','Treino D','Ombro + abdômen','OMBRO',
+        [{group:'ombro',count:3},{group:'abdomen',count:2}], {shoulderNote:true}, ctx),
+      buildDay('Sexta','Treino E','Pernas (posterior/glúteo)','PERNA · POSTERIOR',
+        [{group:'posterior',count:3},{group:'panturrilha',count:1}], {shoulderNote:false}, ctx),
+      buildRestDay('Sábado'),
+      buildRestDay('Domingo'),
+    ];
+  } else {
+    fase1 = [
+      buildDay('Segunda','Treino A','Costas + bíceps','COSTAS · BÍCEPS',
+        [{group:'costas',count:3},{group:'biceps',count:2}], {shoulderNote:false}, ctx),
+      buildDay('Terça','Treino B','Peito + ombro + tríceps','PEITO · OMBRO',
+        [{group:'peito',count:2},{group:'ombro',count:2},{group:'triceps',count:2}], {shoulderNote:true}, ctx),
+      buildDay('Quarta','Treino C','Pernas (posterior)','PERNA · POSTERIOR',
+        [{group:'quad',count:2},{group:'posterior',count:3},{group:'panturrilha',count:1}], {shoulderNote:false}, ctx),
+      buildCardioDay('Quinta'),
+      buildDay('Sexta','Treino D','Superiores completo','SUPERIORES',
+        [{group:'peito',count:2},{group:'costas',count:2},{group:'ombro',count:1},{group:'biceps',count:1},{group:'triceps',count:1}], {shoulderNote:true}, ctx),
+      buildDay('Sábado','Treino E','Pernas (glúteo)','PERNA · GLÚTEO',
+        [{group:'posterior',count:3},{group:'quad',count:1},{group:'panturrilha',count:1}], {shoulderNote:false}, ctx),
+      buildRestDay('Domingo'),
+    ];
+  }
+
+  const fase2 = fase1.map(d => upgradeDayForFase2(d, Math.min(userTier+1, 2)));
+  return { fase1, fase2 };
+}
+// ================= FIM DO MOTOR DE GERAÇÃO =================
+
+
 
 let openWeekIdx = -1;
 
@@ -833,14 +1238,53 @@ document.getElementById('tbSkip').onclick = ()=>{
   document.getElementById('timerBanner').classList.add('hidden');
 };
 
-const START_WEIGHT = 91.0;
-const GOAL_WEIGHT = 81.0;
+let START_WEIGHT = 91.0;
+let GOAL_WEIGHT = 81.0;
+let AGE = 32;
+let HEIGHT_CM = 185;
+let SEX = 'M';
 let weightLog = [];
+
+function currentWeight(){
+  return weightLog.length ? weightLog[weightLog.length-1].weight : START_WEIGHT;
+}
+
+function calcMacros(weightKg){
+  const bmr = 10*weightKg + 6.25*HEIGHT_CM - 5*AGE + (SEX==='F' ? -161 : 5);
+  const tdee = bmr * 1.55;
+  const kcal = tdee * 0.85;
+  const protein = weightKg * 2;
+  const fat = (kcal * 0.28) / 9;
+  const carbs = (kcal - protein*4 - fat*9) / 4;
+  return {
+    kcal: Math.round(kcal/10)*10,
+    protein: Math.round(protein/5)*5,
+    carbs: Math.round(carbs/5)*5,
+    fat: Math.round(fat/5)*5,
+  };
+}
+
+function renderMacros(){
+  const w = currentWeight();
+  const m = calcMacros(w);
+  const grid = document.getElementById('macroGrid');
+  if(grid){
+    grid.innerHTML = `
+      <div class="metric"><p class="m-lbl">Calorias</p><p class="m-val">${m.kcal.toLocaleString('pt-BR')} kcal</p></div>
+      <div class="metric"><p class="m-lbl">Proteína</p><p class="m-val ember">${m.protein} g</p></div>
+      <div class="metric"><p class="m-lbl">Carboidratos</p><p class="m-val">${m.carbs} g</p></div>
+      <div class="metric"><p class="m-lbl">Gordura</p><p class="m-val">${m.fat} g</p></div>
+    `;
+  }
+  const note = document.getElementById('macroNote');
+  if(note) note.textContent = 'Recalculado com base no seu peso mais recente (' + w.toFixed(1) + 'kg). Atualiza sozinho conforme você registra novas pesagens.';
+}
 
 async function loadWeightLog(){
   const data = await storeGet('weight-log');
   weightLog = data || [];
   renderProgresso();
+  renderMacros();
 }
 function renderProgresso(){
   const last = weightLog.length ? weightLog[weightLog.length-1] : null;
@@ -903,6 +1347,7 @@ document.getElementById('btnLog').onclick = async ()=>{
   await storeSet('weight-log', weightLog);
   wInput.value=''; waistInput.value='';
   renderProgresso();
+  renderMacros();
 };
 
 document.querySelectorAll('.bottomnav button').forEach(btn=>{
@@ -1080,9 +1525,29 @@ const firebaseConfig = {
   appId: "1:748618908515:web:c4245e52d16fb89cdb4956",
   measurementId: "G-1QHBQ9ZQ03"
 };
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+
+let auth, db;
+let authTimeoutId = setTimeout(()=>{
+  const el = document.getElementById('authLoading');
+  el.textContent = 'Demorando mais que o esperado... verifique sua internet e recarregue a página.';
+}, 8000);
+
+try {
+  if (typeof firebase === 'undefined') {
+    throw new Error('SDK do Firebase não carregou (script bloqueado ou sem internet).');
+  }
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+} catch (e) {
+  clearTimeout(authTimeoutId);
+  const el = document.getElementById('authLoading');
+  el.textContent = 'Não foi possível carregar o app: ' + e.message + ' Tenta recarregar a página (puxe a tela pra baixo) ou verifique sua conexão.';
+  el.style.padding = '0 24px';
+  el.style.textAlign = 'center';
+  el.style.lineHeight = '1.6';
+  console.error('Erro ao iniciar Firebase:', e);
+}
 
 let isSignupMode = false;
 
@@ -1158,26 +1623,195 @@ document.getElementById('logoutBtn').onclick = async ()=>{
   await auth.signOut();
 };
 
-auth.onAuthStateChanged(async (user)=>{
+document.getElementById('exportBtn').onclick = ()=>{
+  const exportObj = {
+    exportedAt: new Date().toISOString(),
+    userEmail: currentUser ? currentUser.email : null,
+    data: appData
+  };
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'raio-fit-backup-'+todayISO()+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+// ===================== ONBOARDING WIZARD =====================
+const OB_STEPS = ['nome','objetivo','nivel','local','dias','restricoes','bio','resumo'];
+let obIndex = 0;
+let obAnswers = { restricoes: [] };
+
+function renderObProgress(){
+  const el = document.getElementById('obProgress');
+  el.innerHTML = OB_STEPS.map((s,i)=>`<div class="ob-progress-seg ${i<=obIndex?'done':''}"></div>`).join('');
+}
+
+function validateObStep(){
+  const step = OB_STEPS[obIndex];
+  let valid = true;
+  if(step==='nome') valid = document.getElementById('obNome').value.trim().length>0;
+  else if(step==='objetivo') valid = !!obAnswers.objetivo;
+  else if(step==='nivel') valid = !!obAnswers.nivel;
+  else if(step==='local') valid = !!obAnswers.local;
+  else if(step==='dias') valid = !!obAnswers.diasSemana;
+  else if(step==='bio') valid = !!obAnswers.sexo && !!document.getElementById('obIdade').value && !!document.getElementById('obAltura').value && !!document.getElementById('obPeso').value;
+  document.getElementById('obNextBtn').disabled = !valid;
+}
+
+function showObStep(i){
+  obIndex = i;
+  document.querySelectorAll('.ob-step').forEach(s=>s.classList.remove('active'));
+  document.querySelector('.ob-step[data-step="'+OB_STEPS[i]+'"]').classList.add('active');
+  document.getElementById('obBody').scrollTop = 0;
+  renderObProgress();
+  document.getElementById('obBackBtn').style.visibility = i===0 ? 'hidden' : 'visible';
+  document.getElementById('obNextBtn').textContent = OB_STEPS[i]==='resumo' ? 'Gerar meu treino' : 'Continuar';
+  if(OB_STEPS[i]==='resumo') renderObSummary();
+  validateObStep();
+}
+
+function goObNext(){
+  const step = OB_STEPS[obIndex];
+  if(step==='nome') obAnswers.nome = document.getElementById('obNome').value.trim();
+  if(step==='bio'){
+    obAnswers.idade = parseInt(document.getElementById('obIdade').value);
+    obAnswers.altura = parseInt(document.getElementById('obAltura').value);
+    obAnswers.peso = parseFloat(document.getElementById('obPeso').value);
+  }
+  if(step==='resumo'){ finishOnboarding(); return; }
+  if(obIndex < OB_STEPS.length-1) showObStep(obIndex+1);
+}
+
+document.querySelectorAll('.ob-options').forEach(container=>{
+  const field = container.dataset.field;
+  const multi = container.dataset.multi === 'true';
+  container.querySelectorAll('.ob-option').forEach(opt=>{
+    opt.onclick = ()=>{
+      if(multi){
+        const val = opt.dataset.value;
+        const idx = obAnswers.restricoes.indexOf(val);
+        if(idx>=0){ obAnswers.restricoes.splice(idx,1); opt.classList.remove('selected'); }
+        else { obAnswers.restricoes.push(val); opt.classList.add('selected'); }
+      } else {
+        container.querySelectorAll('.ob-option').forEach(o=>o.classList.remove('selected'));
+        opt.classList.add('selected');
+        obAnswers[field] = opt.dataset.value;
+        validateObStep();
+        setTimeout(()=>{ if(obIndex < OB_STEPS.length-1) goObNext(); }, 200);
+        return;
+      }
+      validateObStep();
+    };
+  });
+});
+
+document.querySelectorAll('.ob-sex-toggle button').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('.ob-sex-toggle button').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    obAnswers.sexo = btn.dataset.value;
+    validateObStep();
+  };
+});
+
+['obNome','obIdade','obAltura','obPeso'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', validateObStep);
+});
+
+document.getElementById('obNextBtn').onclick = goObNext;
+document.getElementById('obBackBtn').onclick = ()=>{ if(obIndex>0) showObStep(obIndex-1); };
+
+function renderObSummary(){
+  const labels = {
+    objetivo: {emagrecimento:'Emagrecer e definir', hipertrofia:'Ganhar massa muscular', recomposicao:'Perder gordura e ganhar músculo', forca:'Força e performance', saude:'Saúde e condicionamento geral'},
+    nivel: {iniciante:'Iniciante', intermediario:'Intermediário', avancado:'Avançado'},
+    local: {academia:'Academia completa', 'casa-equip':'Casa, com equipamento', 'casa-livre':'Casa, sem equipamento'},
+    diasSemana: {baixo:'2 a 3 dias/semana', medio:'4 a 5 dias/semana', alto:'6 a 7 dias/semana'},
+  };
+  document.getElementById('obResumoTitle').textContent = 'Perfeito, ' + obAnswers.nome + '!';
+  const restLabels = {ombro:'Ombro', joelho:'Joelho', lombar:'Lombar'};
+  const restText = obAnswers.restricoes.length ? obAnswers.restricoes.map(r=>restLabels[r]).join(', ') : 'Nenhuma';
+  const cards = [
+    ['Objetivo', labels.objetivo[obAnswers.objetivo]],
+    ['Nível', labels.nivel[obAnswers.nivel]],
+    ['Onde treina', labels.local[obAnswers.local]],
+    ['Frequência', labels.diasSemana[obAnswers.diasSemana]],
+    ['Restrições', restText],
+    ['Seus dados', obAnswers.idade+' anos · '+obAnswers.altura+'cm · '+obAnswers.peso+'kg'],
+  ];
+  document.getElementById('obSummaryCards').innerHTML = cards.map(([l,v])=>
+    `<div class="ob-summary-card"><p class="s-lbl">${l}</p><p class="s-val">${v}</p></div>`
+  ).join('');
+}
+
+function applyProfileToApp(profile){
+  START_WEIGHT = profile.peso;
+  GOAL_WEIGHT = ['emagrecimento','recomposicao'].includes(profile.objetivo)
+    ? Math.round(profile.peso*0.9*10)/10
+    : profile.peso;
+  AGE = profile.idade;
+  HEIGHT_CM = profile.altura;
+  SEX = profile.sexo;
+}
+
+async function finishOnboarding(){
+  const btn = document.getElementById('obNextBtn');
+  btn.disabled = true;
+  btn.textContent = 'Gerando seu treino...';
+  const program = generateProgram(obAnswers);
+  generatedProgram = program;
+  applyProfileToApp(obAnswers);
+  await storeSet('profile', obAnswers);
+  await storeSet('generated-program', program);
+  await storeSet('programa-fase', {phase:1, phaseStart: todayISO()});
+  document.getElementById('onboardingScreen').classList.remove('visible');
+  document.getElementById('appMain').style.display = '';
+  init();
+}
+// ================= FIM DO ONBOARDING =================
+
+if (auth) {
+  clearTimeout(authTimeoutId);
+  auth.onAuthStateChanged(async (user)=>{
   document.getElementById('authLoading').style.display = 'none';
   if(user){
     currentUser = user;
     document.getElementById('loginScreen').classList.remove('visible');
-    document.getElementById('appMain').style.display = '';
     document.getElementById('userEmailLabel').textContent = user.email;
     await loadAppDataFromFirestore(user.uid);
-    init();
+
+    const profile = await storeGet('profile');
+    const legacyProgram = await storeGet('programa-fase');
+
+    if(!profile && !legacyProgram){
+      obAnswers = { restricoes: [] };
+      document.getElementById('onboardingScreen').classList.add('visible');
+      showObStep(0);
+    } else {
+      if(profile){
+        generatedProgram = await storeGet('generated-program');
+        applyProfileToApp(profile);
+      }
+      document.getElementById('appMain').style.display = '';
+      init();
+    }
   } else {
     currentUser = null;
     appData = {};
     firestoreDocRef = null;
     document.getElementById('appMain').style.display = 'none';
+    document.getElementById('onboardingScreen').classList.remove('visible');
     document.getElementById('loginScreen').classList.add('visible');
     const btn = document.getElementById('loginSubmitBtn');
     btn.disabled = false;
     btn.textContent = isSignupMode ? 'Criar conta' : 'Entrar';
   }
-});
+  });
+}
 </script>
 </body>
 </html>
