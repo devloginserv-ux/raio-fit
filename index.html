@@ -221,8 +221,14 @@ body{
 /* Auth screens */
 #authLoading{
   position:fixed;inset:0;background:var(--bg);z-index:100;
-  display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:14px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-dim);font-size:14px;
 }
+.splash-spinner{
+  width:26px;height:26px;border-radius:50%;
+  border:3px solid var(--surface-2);border-top-color:var(--ember);
+  animation:splash-spin 0.8s linear infinite;
+}
+@keyframes splash-spin{to{transform:rotate(360deg);}}
 #loginScreen{
   position:fixed;inset:0;background:var(--bg);z-index:90;
   display:none;flex-direction:column;justify-content:center;padding:24px;
@@ -309,11 +315,20 @@ body{
 .ob-summary-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px;}
 .ob-summary-card .s-lbl{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 2px;}
 .ob-summary-card .s-val{font-size:15px;font-weight:600;margin:0;}
+#appMain{opacity:0;transition:opacity 0.35s ease;}
+#appMain.visible{opacity:1;}
 </style>
 </head>
 <body>
 
-<div id="authLoading">Carregando...</div>
+<div id="authLoading">
+  <svg width="52" height="52" viewBox="0 0 100 100" style="margin-bottom:18px;">
+    <polygon points="56,8 21,64 51,64 43,92 79,42 51,42 58,8" fill="#FF5A36"/>
+  </svg>
+  <p class="display" style="font-size:26px;margin:0 0 18px;letter-spacing:0.03em;">RAIO FIT</p>
+  <div class="splash-spinner"></div>
+  <p id="authLoadingText" style="margin-top:16px;font-size:13px;color:var(--text-dim);">Carregando...</p>
+</div>
 
 <div id="loginScreen">
   <div class="login-wrap">
@@ -327,6 +342,10 @@ body{
     <div class="login-field">
       <label>Senha</label>
       <input type="password" id="loginPassword" autocomplete="current-password">
+    </div>
+    <div class="login-field" id="confirmPasswordField" style="display:none;">
+      <label>Confirmar senha</label>
+      <input type="password" id="loginPasswordConfirm" autocomplete="new-password">
     </div>
     <button class="login-btn" id="loginSubmitBtn">Entrar</button>
     <p class="login-switch"><span id="loginSwitchText">Não tem conta?</span> <a href="#" id="loginSwitchLink">Criar conta</a></p>
@@ -564,136 +583,193 @@ body{
 </div>
 
 <script>
+// ===== PROGRAMA: ALTA FREQUÊNCIA (todos os grupos, todos os dias, intensidade ondulante) =====
+// Seg PESADO (base agachamento) · Ter VOLUME · Qua LEVE/PUMP · Qui PESADO (base terra)
+// Sex VOLUME · Sáb VOLUME (ênfase perna) · Dom LEVE/TÉCNICA
 const WEEK_FASE1 = [
-  { day:'Segunda', label:'Push A', focus:'Peito + ombro + tríceps (pesado)', type:'forca', tag:'PUSH · PEITO',
+  { day:'Segunda', label:'Força A', focus:'Corpo todo — pesado (base agachamento)', type:'forca', tag:'PESADO · FULL',
     shoulderWarn:true,
     exercises:[
-      {name:'Supino reto (máquina)', sets:5, reps:'6-8', rest:150, note:'Carga alta, controle na descida. Ombro esquerdo primeiro: aquece bem antes de ir pesado.'},
-      {name:'Supino inclinado com halteres', sets:4, reps:'8', rest:120},
+      {name:'Supino reto (máquina)', sets:4, reps:'6-8', rest:150, note:'Carga alta, controle na descida. Ombro esquerdo: aquece bem antes de ir pesado.'},
+      {name:'Puxada aberta (pulley)', sets:4, reps:'6-8', rest:150, note:'Carga alta, puxe até o peito, controle na volta.'},
       {name:'Desenvolvimento (máquina)', sets:4, reps:'8', rest:120, note:'Se o ombro esquerdo incomodar, reduza a amplitude no topo.'},
-      {name:'Elevação lateral com halteres', sets:4, reps:'10', rest:60},
-      {name:'Tríceps testa com halter', sets:4, reps:'8', rest:90},
-      {name:'Tríceps corda', sets:3, reps:'12', rest:60},
-      {name:'Rosca direta com halteres', sets:3, reps:'12', rest:60},
-      {name:'Elevação de pernas', sets:3, reps:'15', rest:45},
-    ]},
-  { day:'Terça', label:'Pull A', focus:'Costas + bíceps (pesado)', type:'forca', tag:'PULL · COSTAS',
-    exercises:[
-      {name:'Puxada aberta (pulley)', sets:5, reps:'6-8', rest:150, note:'Carga alta, puxe até o peito, controle na volta.'},
-      {name:'Remada baixa (cabo)', sets:4, reps:'8', rest:120},
-      {name:'Remada unilateral com halter', sets:4, reps:'10 cada lado', rest:90},
-      {name:'Hiperextensão lombar com peso', sets:3, reps:'12', rest:60},
-      {name:'Rosca direta com halteres', sets:4, reps:'8', rest:90},
-      {name:'Rosca martelo', sets:3, reps:'12', rest:60},
-    ]},
-  { day:'Quarta', label:'Legs A', focus:'Pernas (quadríceps, pesado)', type:'forca', tag:'PERNA · QUAD',
-    exercises:[
+      {name:'Rosca direta com halteres', sets:3, reps:'8', rest:90},
+      {name:'Tríceps testa com halter', sets:3, reps:'8', rest:90},
       {name:'Leg press 45°', sets:5, reps:'8', rest:150, note:'Carga bem pesada, amplitude completa controlada.'},
       {name:'Hack (ou agachamento na máquina)', sets:4, reps:'8', rest:120},
-      {name:'Cadeira extensora', sets:3, reps:'15', rest:90, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
-      {name:'Panturrilha sentado (máquina)', sets:5, reps:'12', rest:60},
-      {name:'Elevação de pernas', sets:4, reps:'12', rest:60},
-      {name:'Abdominal bicicleta', sets:3, reps:'20', rest:45},
+      {name:'Elevação de pernas', sets:3, reps:'15', rest:45},
     ]},
-  { day:'Quinta', label:'Push B', focus:'Peito + ombro + tríceps (variação)', type:'forca', tag:'PUSH · OMBRO',
+  { day:'Terça', label:'Volume A', focus:'Corpo todo — hipertrofia', type:'forca', tag:'VOLUME · FULL',
     shoulderWarn:true,
-    finisher:{desc:'8-10 min de caminhada leve. Semana pesada, mantenha tranquilo.'},
+    finisher:{desc:'10 min de caminhada leve/moderada na esteira ou ao ar livre.'},
     exercises:[
-      {name:'Supino inclinado (máquina ou halteres)', sets:5, reps:'6-8', rest:150},
-      {name:'Crucifixo (voador)', sets:4, reps:'10', rest:90},
-      {name:'Desenvolvimento com halteres sentado', sets:4, reps:'8', rest:120, note:'Carga moderada/pesada, atenção ao ombro esquerdo.'},
-      {name:'Elevação lateral no cabo', sets:3, reps:'12', rest:60},
-      {name:'Tríceps francês com halter', sets:4, reps:'10', rest:90},
-      {name:'Tríceps banco (mergulho)', sets:3, reps:'12', rest:60},
-      {name:'Rosca martelo', sets:3, reps:'12', rest:60},
+      {name:'Supino inclinado com halteres', sets:3, reps:'10', rest:90},
+      {name:'Remada baixa (cabo)', sets:4, reps:'10', rest:90},
+      {name:'Elevação lateral com halteres', sets:4, reps:'12', rest:45},
+      {name:'Rosca na polia', sets:3, reps:'12', rest:60},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:60},
+      {name:'Cadeira extensora', sets:3, reps:'12', rest:60},
+      {name:'Mesa flexora', sets:3, reps:'12', rest:60},
       {name:'Abdominal na polia (cable crunch)', sets:3, reps:'15', rest:60},
     ]},
-  { day:'Sexta', label:'Pull B', focus:'Costas + bíceps (variação)', type:'forca', tag:'PULL · BÍCEPS',
-    finisher:{desc:'8-10 min de caminhada leve pra fechar bem a semana.'},
+  { day:'Quarta', label:'Pump', focus:'Corpo todo — leve, bombeamento e técnica', type:'forca', tag:'LEVE · PUMP',
+    finisher:{desc:'10 min de caminhada leve.'},
     exercises:[
-      {name:'Remada T-bar', sets:5, reps:'6-8', rest:150},
-      {name:'Puxada frente pegada supinada', sets:4, reps:'8', rest:120},
-      {name:'Remada baixa pegada fechada', sets:4, reps:'10', rest:90},
-      {name:'Face pull na polia', sets:3, reps:'15', rest:60, note:'Ótimo pra saúde do ombro — puxe até a altura do rosto, cotovelos altos.'},
-      {name:'Rosca scott (máquina ou barra W)', sets:4, reps:'10', rest:75},
-      {name:'Rosca na polia', sets:3, reps:'12', rest:60},
-    ]},
-  { day:'Sábado', label:'Legs B', focus:'Pernas (posterior/glúteo, pesado)', type:'forca', tag:'PERNA · POSTERIOR',
-    exercises:[
-      {name:'Stiff com halteres', sets:5, reps:'8', rest:150, note:'Controle a descida, sinta o posterior de coxa, não arredonde a lombar.'},
-      {name:'Cadeira flexora', sets:4, reps:'12', rest:90},
-      {name:'Mesa flexora', sets:3, reps:'12', rest:90},
-      {name:'Elevação pélvica com barra (hip thrust)', sets:4, reps:'10', rest:90},
+      {name:'Supino reto (máquina)', sets:3, reps:'15', rest:45, note:'Dia leve: ~50-60% da carga de segunda. Foco na contração, nada de falha.'},
+      {name:'Puxada frente (pulley)', sets:3, reps:'15', rest:45},
+      {name:'Elevação lateral com halteres', sets:3, reps:'20', rest:30},
+      {name:'Rosca martelo', sets:3, reps:'15', rest:45},
+      {name:'Tríceps coice com halter', sets:3, reps:'15', rest:45},
+      {name:'Leg press 45°', sets:3, reps:'20', rest:60, note:'Carga leve, ritmo constante, sem travar o joelho.'},
       {name:'Panturrilha em pé', sets:4, reps:'15', rest:45},
-      {name:'Prancha abdominal', sets:3, reps:'45s', rest:60},
+      {name:'Prancha abdominal', sets:3, reps:'45s', rest:45},
     ]},
-  { day:'Domingo', label:'Descanso', focus:'Recuperação total', type:'descanso', exercises:[]},
+  { day:'Quinta', label:'Força B', focus:'Corpo todo — pesado (base terra/posterior)', type:'forca', tag:'PESADO · FULL',
+    shoulderWarn:true,
+    exercises:[
+      {name:'Supino inclinado (máquina ou halteres)', sets:4, reps:'6-8', rest:150},
+      {name:'Remada T-bar', sets:4, reps:'6-8', rest:150},
+      {name:'Desenvolvimento com halteres sentado', sets:4, reps:'8', rest:120, note:'Carga moderada/pesada, atenção ao ombro esquerdo.'},
+      {name:'Rosca scott (máquina ou barra W)', sets:3, reps:'8', rest:90},
+      {name:'Tríceps francês com halter', sets:3, reps:'8-10', rest:90},
+      {name:'Stiff com halteres', sets:5, reps:'8', rest:150, note:'Controle a descida, sinta o posterior de coxa, não arredonde a lombar.'},
+      {name:'Mesa flexora', sets:4, reps:'10', rest:90},
+      {name:'Abdominal na polia (cable crunch)', sets:4, reps:'12', rest:60},
+    ]},
+  { day:'Sexta', label:'Volume B', focus:'Corpo todo — hipertrofia', type:'forca', tag:'VOLUME · FULL',
+    shoulderWarn:true,
+    finisher:{desc:'10 min de caminhada leve/moderada.'},
+    exercises:[
+      {name:'Supino reto com halteres', sets:3, reps:'10', rest:90},
+      {name:'Crossover no cabo', sets:3, reps:'12', rest:60},
+      {name:'Puxada frente pegada supinada', sets:4, reps:'10', rest:90},
+      {name:'Elevação lateral no cabo', sets:4, reps:'12', rest:45},
+      {name:'Face pull na polia', sets:3, reps:'15', rest:60, note:'Ótimo pra saúde do ombro — puxe até a altura do rosto, cotovelos altos.'},
+      {name:'Rosca alternada com halteres', sets:3, reps:'12', rest:60},
+      {name:'Tríceps banco (mergulho)', sets:3, reps:'12', rest:60},
+      {name:'Afundo com halteres (passada)', sets:3, reps:'12 cada perna', rest:75},
+      {name:'Cadeira flexora', sets:3, reps:'12', rest:60},
+      {name:'Elevação de pernas', sets:3, reps:'15', rest:45},
+    ]},
+  { day:'Sábado', label:'Volume C', focus:'Corpo todo — ênfase perna', type:'forca', tag:'VOLUME · PERNA',
+    finisher:{desc:'8-10 min de caminhada leve. Pernas bem exigidas, mantenha tranquilo.'},
+    exercises:[
+      {name:'Voador (peck deck)', sets:3, reps:'12', rest:60},
+      {name:'Puxada aberta (pulley)', sets:3, reps:'10', rest:90},
+      {name:'Elevação lateral com halteres', sets:3, reps:'15', rest:45},
+      {name:'Rosca martelo', sets:3, reps:'12', rest:60},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:60},
+      {name:'Leg press 45° (pés mais altos)', sets:4, reps:'12', rest:90},
+      {name:'Cadeira extensora', sets:3, reps:'15', rest:60},
+      {name:'Cadeira flexora', sets:3, reps:'12', rest:60},
+      {name:'Panturrilha sentado (máquina)', sets:5, reps:'12', rest:60},
+      {name:'Abdominal bicicleta', sets:3, reps:'20', rest:45},
+    ]},
+  { day:'Domingo', label:'Técnica', focus:'Corpo todo — leve, técnica e recuperação ativa', type:'forca', tag:'LEVE · TÉCNICA',
+    finisher:{desc:'12-15 min de caminhada leve. Dia de soltar o corpo, sem forçar.'},
+    exercises:[
+      {name:'Supino inclinado com halteres', sets:3, reps:'12', rest:60, note:'Dia leve: ~60% da carga, 3 segundos na descida, 3-4 repetições sobrando.'},
+      {name:'Remada baixa (cabo)', sets:3, reps:'12', rest:60},
+      {name:'Elevação lateral com halteres', sets:3, reps:'15', rest:45},
+      {name:'Rosca direta com halteres', sets:3, reps:'12', rest:45},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:45},
+      {name:'Agachamento com halteres (goblet)', sets:3, reps:'12', rest:60, note:'Pausa de 1-2s embaixo, foco em postura e mobilidade.'},
+      {name:'Panturrilha em pé', sets:3, reps:'15', rest:45},
+      {name:'Prancha lateral', sets:3, reps:'30s cada lado', rest:45},
+    ]},
 ];
 
 const WEEK_FASE2 = [
-  { day:'Segunda', label:'Push A', focus:'Peito + ombro + tríceps (pesado)', type:'forca', tag:'PUSH · PEITO',
+  { day:'Segunda', label:'Força A', focus:'Corpo todo — pesado (base agachamento)', type:'forca', tag:'PESADO · FULL',
     shoulderWarn:true,
     exercises:[
-      {name:'Supino reto com barra', sets:5, reps:'5-6', rest:180, note:'Carga alta de verdade. Ombro esquerdo primeiro: aquece bem, teste com barra vazia antes de subir carga.'},
-      {name:'Supino inclinado com halteres', sets:4, reps:'8', rest:120},
+      {name:'Supino reto com barra', sets:4, reps:'5-6', rest:180, note:'Carga alta de verdade. Ombro esquerdo: aquece bem, teste com barra vazia antes de subir carga.'},
+      {name:'Barra fixa (com peso se conseguir)', sets:4, reps:'5-6', rest:150, note:'Sem peso ainda? Use a puxada aberta na polia com carga bem pesada.'},
       {name:'Desenvolvimento com halteres sentado', sets:4, reps:'6-8', rest:150, note:'Carga pesada controlada. Se o ombro esquerdo incomodar, pare a amplitude antes do topo.'},
-      {name:'Elevação lateral com halteres', sets:4, reps:'10', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
-      {name:'Tríceps testa com barra (skull crusher)', sets:4, reps:'8', rest:90},
-      {name:'Tríceps corda', sets:3, reps:'12', rest:60},
-      {name:'Rosca direta com barra', sets:3, reps:'10', rest:60},
-      {name:'Elevação de pernas', sets:3, reps:'15', rest:45},
+      {name:'Rosca direta com barra', sets:3, reps:'6-8', rest:90},
+      {name:'Tríceps testa com barra (skull crusher)', sets:3, reps:'8', rest:90},
+      {name:'Agachamento livre com barra', sets:5, reps:'5-6', rest:180, note:'O rei dos exercícios de perna. Profundidade completa, core travado, sobe carga aos poucos.'},
+      {name:'Hack (ou agachamento na máquina)', sets:3, reps:'10', rest:120},
+      {name:'Elevação de pernas na barra fixa', sets:3, reps:'12', rest:60, note:'Sem balanço. Se ainda não aguenta, faça no solo.'},
     ]},
-  { day:'Terça', label:'Pull A', focus:'Costas + bíceps (pesado)', type:'forca', tag:'PULL · COSTAS',
-    exercises:[
-      {name:'Levantamento terra convencional', sets:5, reps:'5', rest:180, note:'O exercício mais pesado da semana. Prioridade total em técnica antes de subir carga.'},
-      {name:'Barra fixa (com peso se conseguir)', sets:4, reps:'6-8', rest:120, note:'Sem peso ainda? Use a puxada aberta na polia com carga bem pesada.'},
-      {name:'Remada curvada com barra', sets:4, reps:'8', rest:120},
-      {name:'Remada unilateral com halter pesado', sets:3, reps:'10 cada lado', rest:75},
-      {name:'Rosca direta com barra', sets:4, reps:'8', rest:90},
-      {name:'Rosca martelo', sets:3, reps:'12', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
-    ]},
-  { day:'Quarta', label:'Legs A', focus:'Pernas (quadríceps, pesado)', type:'forca', tag:'PERNA · QUAD',
-    exercises:[
-      {name:'Agachamento livre com barra', sets:5, reps:'6', rest:180, note:'O rei dos exercícios de perna. Profundidade completa, core travado, sobe carga aos poucos.'},
-      {name:'Leg press 45°', sets:4, reps:'10', rest:120},
-      {name:'Cadeira extensora', sets:3, reps:'15', rest:90, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
-      {name:'Panturrilha em pé', sets:5, reps:'12', rest:60},
-      {name:'Elevação de pernas na barra fixa', sets:4, reps:'12', rest:60},
-      {name:'Abdominal bicicleta', sets:3, reps:'20', rest:45},
-    ]},
-  { day:'Quinta', label:'Push B', focus:'Peito + ombro + tríceps (variação)', type:'forca', tag:'PUSH · OMBRO',
+  { day:'Terça', label:'Volume A', focus:'Corpo todo — hipertrofia', type:'forca', tag:'VOLUME · FULL',
     shoulderWarn:true,
-    finisher:{desc:'8-10 min de caminhada leve. Semana pesada, mantenha tranquilo.'},
+    finisher:{desc:'10 min de caminhada leve/moderada na esteira ou ao ar livre.'},
     exercises:[
-      {name:'Supino inclinado com barra', sets:5, reps:'5-6', rest:180},
-      {name:'Supino reto com halteres', sets:4, reps:'8', rest:120},
-      {name:'Desenvolvimento com halteres sentado', sets:4, reps:'8', rest:120, note:'Atenção ao ombro esquerdo, carga controlada.'},
-      {name:'Elevação lateral no cabo', sets:3, reps:'12', rest:15, technique:'DROP SET'},
-      {name:'Tríceps francês com halter', sets:4, reps:'10', rest:90},
-      {name:'Tríceps banco (mergulho, com peso se possível)', sets:3, reps:'12', rest:60},
-      {name:'Rosca martelo', sets:3, reps:'12', rest:60},
+      {name:'Supino inclinado com halteres', sets:3, reps:'10', rest:90},
+      {name:'Remada curvada com barra', sets:4, reps:'10', rest:90},
+      {name:'Elevação lateral com halteres', sets:4, reps:'12', rest:45, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Rosca direta na barra', sets:3, reps:'10', rest:15, technique:'BI-SET'},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:75, technique:'BI-SET', note:'Direto após a rosca, sem descanso entre os dois.'},
+      {name:'Cadeira extensora', sets:3, reps:'12', rest:15, technique:'BI-SET'},
+      {name:'Mesa flexora', sets:3, reps:'12', rest:75, technique:'BI-SET', note:'Direto após a extensora, sem descanso entre as duas.'},
       {name:'Abdominal na polia (cable crunch)', sets:3, reps:'15', rest:60},
     ]},
-  { day:'Sexta', label:'Pull B', focus:'Costas + bíceps (variação)', type:'forca', tag:'PULL · BÍCEPS',
-    finisher:{desc:'8-10 min de caminhada leve pra fechar bem a semana.'},
+  { day:'Quarta', label:'Pump', focus:'Corpo todo — leve, bombeamento e técnica', type:'forca', tag:'LEVE · PUMP',
+    finisher:{desc:'10 min de caminhada leve.'},
     exercises:[
-      {name:'Remada T-bar', sets:5, reps:'6', rest:150},
-      {name:'Puxada aberta pegada larga', sets:4, reps:'8', rest:120},
-      {name:'Remada baixa pegada fechada', sets:4, reps:'10', rest:90},
+      {name:'Supino reto com halteres', sets:3, reps:'15', rest:45, note:'Dia leve: ~50-60% da carga de segunda. Foco na contração, nada de falha.'},
+      {name:'Puxada frente (pulley)', sets:3, reps:'15', rest:45},
+      {name:'Elevação lateral com halteres', sets:3, reps:'20', rest:30},
+      {name:'Rosca 21', sets:2, reps:'7+7+7', rest:60, technique:'FINALIZADOR', note:'7 reps na metade inferior + 7 na metade superior + 7 na amplitude completa, numa série só. Carga leve.'},
+      {name:'Tríceps coice com halter', sets:3, reps:'15', rest:45},
+      {name:'Leg press 45°', sets:3, reps:'20', rest:60, note:'Carga leve, ritmo constante, sem travar o joelho.'},
+      {name:'Panturrilha em pé', sets:4, reps:'15', rest:45},
+      {name:'Prancha abdominal com peso', sets:3, reps:'45s', rest:45},
+    ]},
+  { day:'Quinta', label:'Força B', focus:'Corpo todo — pesado (base terra/posterior)', type:'forca', tag:'PESADO · FULL',
+    shoulderWarn:true,
+    exercises:[
+      {name:'Supino inclinado com barra', sets:4, reps:'5-6', rest:180},
+      {name:'Remada T-bar', sets:4, reps:'6', rest:150},
+      {name:'Desenvolvimento com halteres sentado', sets:4, reps:'6-8', rest:150, note:'Atenção ao ombro esquerdo, carga controlada.'},
+      {name:'Rosca scott (barra W)', sets:3, reps:'8', rest:90},
+      {name:'Tríceps francês com halter', sets:3, reps:'8-10', rest:90},
+      {name:'Levantamento terra convencional', sets:5, reps:'5', rest:180, note:'O exercício mais pesado da semana. Prioridade total em técnica antes de subir carga.'},
+      {name:'Mesa flexora', sets:4, reps:'10', rest:90, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Abdominal na polia (cable crunch)', sets:4, reps:'12', rest:60},
+    ]},
+  { day:'Sexta', label:'Volume B', focus:'Corpo todo — hipertrofia', type:'forca', tag:'VOLUME · FULL',
+    shoulderWarn:true,
+    finisher:{desc:'10 min de caminhada leve/moderada.'},
+    exercises:[
+      {name:'Supino reto com halteres', sets:3, reps:'10', rest:90},
+      {name:'Crucifixo com halteres', sets:3, reps:'12', rest:75, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Puxada aberta pegada larga', sets:4, reps:'10', rest:90},
+      {name:'Elevação lateral no cabo', sets:4, reps:'12', rest:45},
       {name:'Face pull na polia', sets:3, reps:'15', rest:60, note:'Ótimo pra saúde do ombro — puxe até a altura do rosto, cotovelos altos.'},
-      {name:'Rosca scott (barra W)', sets:4, reps:'10', rest:75},
-      {name:'Rosca 21', sets:1, reps:'7+7+7', rest:0, technique:'FINALIZADOR', note:'7 reps na metade inferior + 7 na metade superior + 7 na amplitude completa, numa série só.'},
+      {name:'Rosca alternada com halteres', sets:3, reps:'12', rest:15, technique:'BI-SET'},
+      {name:'Tríceps banco (mergulho, com peso se possível)', sets:3, reps:'12', rest:75, technique:'BI-SET', note:'Direto após a rosca, sem descanso entre os dois.'},
+      {name:'Passada com halteres (walking lunge)', sets:3, reps:'12 cada perna', rest:75},
+      {name:'Cadeira flexora', sets:3, reps:'12', rest:60},
+      {name:'Elevação de pernas', sets:3, reps:'15', rest:45},
     ]},
-  { day:'Sábado', label:'Legs B', focus:'Pernas (posterior/glúteo, pesado)', type:'forca', tag:'PERNA · POSTERIOR',
+  { day:'Sábado', label:'Volume C', focus:'Corpo todo — ênfase perna', type:'forca', tag:'VOLUME · PERNA',
+    finisher:{desc:'8-10 min de caminhada leve. Pernas bem exigidas, mantenha tranquilo.'},
     exercises:[
-      {name:'Levantamento terra romeno (RDL)', sets:5, reps:'8', rest:150, note:'Controle a descida, sinta o posterior de coxa, não arredonde a lombar.'},
-      {name:'Agachamento búlgaro com halteres', sets:4, reps:'10 cada perna', rest:90, note:'Excelente pra glúteo e equilíbrio. Apoie o pé de trás num banco baixo.'},
-      {name:'Mesa flexora', sets:3, reps:'12', rest:90, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
-      {name:'Elevação pélvica com barra (hip thrust)', sets:4, reps:'10', rest:90},
-      {name:'Panturrilha sentado', sets:4, reps:'15', rest:45},
-      {name:'Prancha abdominal com peso', sets:3, reps:'45s', rest:60},
+      {name:'Voador (peck deck)', sets:3, reps:'12', rest:60},
+      {name:'Remada unilateral com halter pesado', sets:3, reps:'10 cada lado', rest:75},
+      {name:'Elevação lateral com halteres', sets:3, reps:'15', rest:45},
+      {name:'Rosca martelo', sets:3, reps:'12', rest:15, technique:'BI-SET'},
+      {name:'Tríceps francês com halter', sets:3, reps:'12', rest:75, technique:'BI-SET', note:'Direto após a rosca martelo, sem descanso entre os dois.'},
+      {name:'Agachamento búlgaro com halteres', sets:4, reps:'10 cada perna', rest:90, note:'Apoie o pé de trás num banco baixo, desça controlado.'},
+      {name:'Cadeira extensora', sets:3, reps:'15', rest:60, technique:'DROP SET', note:'Na última série, ao falhar, reduza a carga e continue por mais 8-10 reps.'},
+      {name:'Levantamento terra romeno (RDL)', sets:4, reps:'10', rest:120, note:'Carga moderada: o terra pesado foi na quinta. Controle a descida, não arredonde a lombar.'},
+      {name:'Panturrilha sentado (máquina)', sets:5, reps:'12', rest:60},
+      {name:'Roda abdominal (ab wheel)', sets:3, reps:'10', rest:60, note:'Se ainda não tem a roda, substitua por prancha longa de 45-60s.'},
     ]},
-  { day:'Domingo', label:'Descanso', focus:'Recuperação total', type:'descanso', exercises:[]},
+  { day:'Domingo', label:'Técnica', focus:'Corpo todo — leve, técnica e recuperação ativa', type:'forca', tag:'LEVE · TÉCNICA',
+    finisher:{desc:'12-15 min de caminhada leve. Dia de soltar o corpo, sem forçar.'},
+    exercises:[
+      {name:'Supino inclinado com halteres', sets:3, reps:'12', rest:60, note:'Dia leve: ~60% da carga, 3 segundos na descida, 3-4 repetições sobrando.'},
+      {name:'Remada baixa (cabo)', sets:3, reps:'12', rest:60},
+      {name:'Elevação lateral com halteres', sets:3, reps:'15', rest:45},
+      {name:'Rosca direta com halteres', sets:3, reps:'12', rest:45},
+      {name:'Tríceps corda', sets:3, reps:'12', rest:45},
+      {name:'Agachamento com halteres (goblet)', sets:3, reps:'12', rest:60, note:'Pausa de 1-2s embaixo, foco em postura e mobilidade.'},
+      {name:'Panturrilha em pé', sets:3, reps:'15', rest:45},
+      {name:'Prancha lateral', sets:3, reps:'30s cada lado', rest:45},
+    ]},
 ];
 
 function dateISO(d){
@@ -949,7 +1025,7 @@ function generateProgram(profile){
   }
 
   const fase2 = fase1.map(d => upgradeDayForFase2(d, Math.min(userTier+1, 2)));
-  return { fase1, fase2 };
+  return { fase1, fase2, v:2 };
 }
 // ================= FIM DO MOTOR DE GERAÇÃO =================
 
@@ -1528,8 +1604,7 @@ const firebaseConfig = {
 
 let auth, db;
 let authTimeoutId = setTimeout(()=>{
-  const el = document.getElementById('authLoading');
-  el.textContent = 'Demorando mais que o esperado... verifique sua internet e recarregue a página.';
+  document.getElementById('authLoadingText').textContent = 'Demorando mais que o esperado... verifique sua internet e recarregue a página.';
 }, 8000);
 
 try {
@@ -1541,11 +1616,12 @@ try {
   db = firebase.firestore();
 } catch (e) {
   clearTimeout(authTimeoutId);
-  const el = document.getElementById('authLoading');
+  const el = document.getElementById('authLoadingText');
   el.textContent = 'Não foi possível carregar o app: ' + e.message + ' Tenta recarregar a página (puxe a tela pra baixo) ou verifique sua conexão.';
   el.style.padding = '0 24px';
   el.style.textAlign = 'center';
   el.style.lineHeight = '1.6';
+  document.querySelector('#authLoading .splash-spinner').style.display = 'none';
   console.error('Erro ao iniciar Firebase:', e);
 }
 
@@ -1582,6 +1658,8 @@ document.getElementById('loginSwitchLink').onclick = (e)=>{
   document.getElementById('loginSubtitle').textContent = isSignupMode ? 'Cria sua conta pra começar' : 'Entra na sua conta pra continuar';
   document.getElementById('loginSwitchText').textContent = isSignupMode ? 'Já tem conta?' : 'Não tem conta?';
   document.getElementById('loginSwitchLink').textContent = isSignupMode ? 'Entrar' : 'Criar conta';
+  document.getElementById('confirmPasswordField').style.display = isSignupMode ? 'block' : 'none';
+  document.getElementById('loginPasswordConfirm').value = '';
   hideLoginMessage();
 };
 
@@ -1590,6 +1668,11 @@ document.getElementById('loginSubmitBtn').onclick = async ()=>{
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   if(!email || !password){ showLoginMessage('Preenche email e senha.', true); return; }
+  if(isSignupMode){
+    const confirmPassword = document.getElementById('loginPasswordConfirm').value;
+    if(password.length < 6){ showLoginMessage('A senha precisa ter pelo menos 6 caracteres.', true); return; }
+    if(password !== confirmPassword){ showLoginMessage('As senhas não coincidem. Confere e tenta de novo.', true); return; }
+  }
   const btn = document.getElementById('loginSubmitBtn');
   btn.disabled = true;
   btn.textContent = isSignupMode ? 'Criando conta...' : 'Entrando...';
@@ -1770,6 +1853,7 @@ async function finishOnboarding(){
   await storeSet('programa-fase', {phase:1, phaseStart: todayISO()});
   document.getElementById('onboardingScreen').classList.remove('visible');
   document.getElementById('appMain').style.display = '';
+  requestAnimationFrame(()=> document.getElementById('appMain').classList.add('visible'));
   init();
 }
 // ================= FIM DO ONBOARDING =================
@@ -1793,10 +1877,11 @@ if (auth) {
       showObStep(0);
     } else {
       if(profile){
-        generatedProgram = await storeGet('generated-program');
+        { const gp = await storeGet('generated-program'); generatedProgram = (gp && gp.v===2) ? gp : null; }
         applyProfileToApp(profile);
       }
       document.getElementById('appMain').style.display = '';
+      requestAnimationFrame(()=> document.getElementById('appMain').classList.add('visible'));
       init();
     }
   } else {
@@ -1804,6 +1889,7 @@ if (auth) {
     appData = {};
     firestoreDocRef = null;
     document.getElementById('appMain').style.display = 'none';
+    document.getElementById('appMain').classList.remove('visible');
     document.getElementById('onboardingScreen').classList.remove('visible');
     document.getElementById('loginScreen').classList.add('visible');
     const btn = document.getElementById('loginSubmitBtn');
